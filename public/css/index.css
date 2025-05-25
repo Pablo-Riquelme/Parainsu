@@ -1,0 +1,363 @@
+/* public/css/index.css */
+
+/* Estilos para la lista de usuarios y equipos (users.index.blade.php, equipos_ti.index.blade.php) */
+
+/* Contenedor Principal de la Vista */
+.container {
+    margin-top: 5.9rem; /* Margen superior igual a la altura de la navbar */
+    margin-left: 250px; /* Margen izquierdo igual al ancho del sidebar */
+    padding: 1rem;
+    display: flex;
+    justify-content: flex-start; /* Alineamos el contenido a la izquierda */
+    flex-direction: column;
+    align-items: stretch;
+    min-height: calc(100vh - 5.9rem); /* Altura mínima restante */
+    box-sizing: border-box; /* Importante para que padding no afecte el ancho total */
+    width: calc(100% - 250px); /* Ancho restante */
+    max-width: none; /* Asegura que no haya un max-width que interfiera con el cálculo del ancho */
+}
+
+/* Tarjeta Principal (Card) */
+.card {
+    border: 1px solid #e5e7eb; /* Borde sutil */
+    border-radius: 0.5rem; /* Bordes redondeados */
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); /* Sombra suave y ligera */
+    background-color: #fff;
+    margin-bottom: 1.5rem; /* Margen inferior para separar de la paginación o otros elementos */
+    width: 100%; /* Ocupa todo el ancho disponible dentro del contenedor */
+}
+
+/* Encabezado de la Tarjeta */
+.card-header {
+    background-color: #348FFF; /* Tu color azul deseado */
+    color: white;
+    padding: 1rem 1.5rem; /* Padding generoso */
+    border-bottom: 1px solid #287ee0; /* Borde inferior más oscuro para contrastar */
+    border-radius: 0.5rem 0.5rem 0 0;
+    font-weight: 700; /* Más negrita */
+    font-size: 1.4rem; /* Tamaño de fuente para el título */
+    display: flex; /* Para alinear el título y el botón "Añadir" */
+    justify-content: space-between; /* Espacio entre el título y el botón */
+    align-items: center; /* Alineación vertical */
+    text-align: left; /* Alinea el texto a la izquierda en caso de no haber botón */
+}
+
+.card-header .card-title {
+    margin-bottom: 0; /* Elimina el margen por defecto de h1 si es el caso */
+    color: inherit; /* Hereda el color blanco del padre */
+}
+
+
+/* Cuerpo de la Tarjeta */
+.card-body {
+    padding: 1.5rem; /* Padding uniforme */
+}
+
+/* Mensajes de Alerta (Éxito/Error) */
+.alert {
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem; /* Más margen inferior para separarlo del contenido */
+    border: 1px solid transparent;
+    border-radius: 0.375rem; /* Ligeramente más redondeado */
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.alert-success {
+    color: #0f5132;
+    background-color: #d1e7dd;
+    border-color: #badbcc;
+}
+
+.alert-danger {
+    color: #842029;
+    background-color: #f8d7da;
+    border-color: #f5c2c7;
+}
+
+/* Tabla de Datos */
+.table {
+    width: 100%;
+    margin-bottom: 1.5rem; /* Margen inferior para separar de la paginación/botones */
+    color: #212529; /* Color de texto estándar */
+    border-collapse: collapse; /* Para que los bordes de las celdas se vean bien */
+    font-size: 0.95rem; /* Un poco más grande para mejor legibilidad */
+}
+
+.table th,
+.table td {
+    padding: 0.8rem 1rem; /* Padding generoso para celdas */
+    vertical-align: middle; /* Alinea el contenido verticalmente al centro */
+    border-top: 1px solid #e5e7eb; /* Borde superior de celda */
+    text-align: left;
+}
+
+.table thead th {
+    vertical-align: bottom;
+    border-bottom: 2px solid #e5e7eb; /* Borde inferior más grueso para el thead */
+    background-color: #f0f2f5; /* Fondo ligeramente gris para el thead */
+    color: #495057; /* Color de texto más oscuro */
+    font-weight: 700; /* Negrita */
+    text-align: left;
+    white-space: nowrap; /* Evita que los encabezados se envuelvan */
+}
+
+.table tbody tr:hover {
+    background-color: #f5f5f5; /* Efecto hover sutil en las filas */
+}
+
+.table tbody tr:nth-of-type(odd) {
+    background-color: #fcfcfc; /* Alterna el color de fondo para legibilidad, más suave que rgba(0,0,0,0.05) */
+}
+
+/* Contenedor de la Tabla Responsiva */
+.table-responsive {
+    overflow-x: auto; /* Permite scroll horizontal en pantallas pequeñas */
+    margin-bottom: 1rem; /* Margen inferior para separar de otros elementos */
+}
+
+/* Paginación */
+.pagination-container { /* Renombrado de .pagination para evitar conflicto si Bootstrap lo define */
+    display: flex;
+    justify-content: center; /* Centra los enlaces de paginación */
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Estilos específicos de los elementos de paginación de Laravel */
+.pagination-container .pagination { /* Asegura que aplicamos estilos a la lista de paginación de Laravel */
+    display: inline-flex;
+    padding-left: 0;
+    list-style: none;
+    border-radius: 0.375rem; /* Bordes redondeados para la paginación */
+}
+
+.pagination-container .page-item:not(:first-child) .page-link { /* Margen entre elementos */
+    margin-left: -1px;
+}
+
+.pagination-container .page-link { /* Estilos de los enlaces de página */
+    position: relative;
+    display: block;
+    padding: 0.6rem 0.9rem;
+    line-height: 1.25;
+    color: #348FFF; /* Color azul de los enlaces */
+    background-color: #fff;
+    border: 1px solid #dee2e6; /* Borde sutil */
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.pagination-container .page-item:first-child .page-link {
+    border-top-left-radius: 0.375rem;
+    border-bottom-left-radius: 0.375rem;
+}
+
+.pagination-container .page-item:last-child .page-link {
+    border-top-right-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+}
+
+.pagination-container .page-link:hover {
+    z-index: 2;
+    color: #2a6edc; /* Azul más oscuro al pasar el ratón */
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+.pagination-container .page-item.active .page-link {
+    z-index: 3;
+    color: #fff;
+    background-color: #348FFF; /* Fondo azul para la página activa */
+    border-color: #348FFF;
+}
+
+.pagination-container .page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+/* Estilos de Botones */
+.btn {
+    display: inline-flex; /* Para alinear icono y texto */
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1.2rem; /* Padding uniforme para botones */
+    font-size: 1rem;
+    font-weight: 600; /* Un poco más de peso para la fuente */
+    line-height: 1.5;
+    border-radius: 0.375rem; /* Bordes más redondeados */
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    border: 1px solid transparent; /* Asegura un borde por defecto */
+}
+
+.btn i {
+    margin-right: 8px; /* Espacio entre icono y texto */
+}
+.btn-lg {
+    padding: 0.75rem 1.5rem; /* Padding más grande para btn-lg */
+    font-size: 1.25rem; /* Fuente más grande para btn-lg */
+    line-height: 1.5;
+    border-radius: 0.3rem; /* Puede ser ligeramente más redondeado */
+}
+
+/* Botones de acción dentro de la tabla */
+.actions-buttons .btn {
+    padding: 0.4rem 0.8rem; /* Botones más pequeños en la tabla */
+    font-size: 0.875rem;
+    margin-right: 0.5rem; /* Espacio entre botones */
+}
+
+.actions-buttons .d-inline {
+    display: inline-block !important; /* Para que el formulario no rompa la línea */
+}
+
+/* Definición de colores de botones */
+.btn-primary { /* Utilizado para el botón de búsqueda y crear usuario */
+    color: #fff;
+    background-color: #348FFF; /* Tu color azul deseado */
+    border-color: #348FFF;
+}
+.btn-primary:hover {
+    background-color: #287ee0; /* Azul más oscuro al pasar el ratón */
+    border-color: #287ee0;
+}
+
+.btn-create { /* Botón "Añadir Nuevo Equipo/Usuario" en el card-header */
+    color: #fff;
+    background-color: #28a745; /* Verde de éxito */
+    border-color: #28a745;
+    padding: 0.5rem 1rem; /* Padding más ajustado para este botón específico */
+    font-size: 0.9rem; /* Fuente ligeramente más pequeña */
+    font-weight: 500;
+}
+.btn-create:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.btn-edit {
+    color: #fff;
+    background-color: #ffc107; /* Amarillo de advertencia */
+    border-color: #ffc107;
+}
+.btn-edit:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+
+.btn-delete {
+    color: #fff;
+    background-color: #dc3545; /* Rojo de peligro */
+    border-color: #dc3545;
+}
+.btn-delete:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+.btn-secondary, .btn-outline-secondary { /* Botón Cancelar/Limpiar Filtros */
+    color: #6c757d;
+    background-color: #f8f9fa;
+    border-color: #6c757d;
+}
+.btn-secondary:hover, .btn-outline-secondary:hover {
+    color: #fff;
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-home { /* Botón "Volver al Dashboard" */
+    background-color: #6c757d; /* Gris secundario para coherencia */
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem; /* Un poco más grande */
+    font-size: 1.1rem;
+}
+
+.btn-home:hover {
+    background-color: #5a6268;
+}
+
+/* Contenedor de botones al final de la página */
+.button-container {
+    margin-top: 1.5rem;
+    text-align: center; /* Centra el botón Volver al Dashboard */
+    padding-bottom: 1.5rem; /* Padding inferior para el contenedor */
+}
+
+/* Estilos para el formulario de búsqueda y filtro */
+.mb-4 {
+    margin-bottom: 1.5rem !important; /* Asegura el margen inferior del formulario de filtro */
+}
+
+.form-label {
+    font-weight: 600; /* Etiquetas más prominentes */
+    margin-bottom: 0.5rem;
+    color: #495057; /* Color de texto para las etiquetas */
+}
+
+.form-control, .form-select {
+    border-radius: 0.375rem; /* Bordes redondeados para inputs */
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ced4da; /* Borde estándar de Bootstrap */
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.g-3 {
+    --bs-gutter-x: 1rem; /* Espacio entre columnas en el formulario de búsqueda */
+    --bs-gutter-y: 1rem;
+}
+
+/* Alineación de elementos al final en el formulario de búsqueda */
+.align-items-end {
+    align-items: flex-end !important;
+}
+
+.d-grid {
+    display: grid;
+}
+
+.gap-2 {
+    gap: 0.5rem; /* Espacio entre elementos en un d-grid */
+}
+
+/* Ajustes para tabletas y dispositivos móviles */
+@media (max-width: 991.98px) { /* Para pantallas menores a 992px (md breakpoint de Bootstrap) */
+    .container {
+        margin-left: 0; /* Elimina el margen del sidebar en móviles */
+        width: 100%; /* Ocupa todo el ancho */
+    }
+
+    .card-header {
+        flex-direction: column; /* Apila el título y el botón */
+        align-items: flex-start; /* Alinea a la izquierda */
+        gap: 10px; /* Espacio entre título y botón */
+    }
+
+    .card-header .btn-create {
+        width: 100%; /* El botón ocupa todo el ancho */
+        text-align: center; /* Centra el texto del botón */
+    }
+
+    .table-responsive {
+        margin-bottom: 1rem; /* Ajuste de margen para pequeñas pantallas */
+    }
+
+    /* Ajusta el layout del formulario de filtro */
+    .row.g-3 > .col-md-4,
+    .row.g-3 > .col-md-3,
+    .row.g-3 > .col-md-2 {
+        flex: 0 0 auto;
+        width: 100%; /* Cada elemento del filtro ocupa su propia línea */
+    }
+}
