@@ -8,6 +8,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\EquipoTIController;
 use App\Http\Controllers\InsumoMedicoController;
+use App\Http\Controllers\MovimientoController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -64,7 +65,8 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['admin_ti_bodega'])->group(function () {
         Route::resource('insumos-medicos', InsumoMedicoController::class)->parameters([
             'insumos-medicos' => 'insumo_medico',
-]);
+        ]);
+        Route::resource('movimientos', MovimientoController::class);
     });
 
     // Aquí irían otras rutas que requieran autenticación pero no el rol 'admin_ti'

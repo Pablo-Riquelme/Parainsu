@@ -37,4 +37,8 @@ class EquipoTI extends Model
     {
         return $this->belongsTo(User::class, 'usuario_asignado_id');
     }
+    public function movimientos()
+    {
+        return $this->hasMany(Movimiento::class, 'equipo_ti_id');
+    }
 }

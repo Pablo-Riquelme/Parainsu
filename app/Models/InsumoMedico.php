@@ -18,4 +18,8 @@ class InsumoMedico extends Model
         'precio',
         'proveedor',
     ];
+    public function movimientos()
+    {
+        return $this->hasMany(Movimiento::class, 'insumo_medico_id');
+    }
 }
