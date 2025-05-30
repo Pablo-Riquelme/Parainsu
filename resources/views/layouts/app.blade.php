@@ -42,70 +42,96 @@
             <div class="position-sticky">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">
+                        {{-- El enlace "Opciones" suele ser el Home --}}
+                        <a class="nav-link {{ Request::routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">
                             <i class="fas fa-home"></i> Opciones
                         </a>
                     </li>
+
+                    {{-- === Bloque para Administrador TI === --}}
                     @if(auth()->user()->isAdmin())
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('users.index') }}">
+                            <a class="nav-link {{ Request::routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
+                                <i class="fas fa-chart-line"></i> Dashboard Admin
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::routeIs('users.index') ? 'active' : '' }}" href="{{ route('users.index') }}">
                                 <i class="fas fa-users"></i> Gestionar Usuarios
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('users.index') }}">
+                            <a class="nav-link {{ Request::routeIs('roles.index') ? 'active' : '' }}" href="{{ route('roles.index') }}">
                                 <i class="fas fa-user-tag"></i> Gestionar Roles
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('users.index') }}">
+                            <a class="nav-link" href="#"> {{-- CAMBIAR A LA RUTA REAL DE PERMISOS --}}
                                 <i class="fas fa-key"></i> Gestionar Permisos
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('users.index') }}">
-                                <i class="fas fa-chart-line"></i> Dashboard Admin
+                            <a class="nav-link {{ Request::routeIs('equipos-ti.index') ? 'active' : '' }}" href="{{ route('equipos-ti.index') }}">
+                                <i class="fas fa-desktop"></i> Gestionar Equipos TI
                             </a>
                         </li>
-                    @elseif(auth()->user()->isBodega())
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('users.index') }}">
+                            <a class="nav-link {{ Request::routeIs('insumos-medicos.index') ? 'active' : '' }}" href="{{ route('insumos-medicos.index') }}">
+                                <i class="fas fa-boxes"></i> Gestionar Insumos Médicos
+                            </a>
+                        </li>
+                    @endif
+
+                    {{-- === Bloque para Bodega (visible solo si NO es Admin TI) === --}}
+                    {{-- Si un Admin TI también es Bodega, no necesitamos duplicar los enlaces para ellos. --}}
+                    @if(auth()->user()->isBodega() && !auth()->user()->isAdmin())
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('insumos-medicos.index') }}"> {{-- Para Bodega --}}
+                                <i class="fas fa-boxes"></i> Gestionar Insumos Médicos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"> {{-- CAMBIAR A LA RUTA REAL DE VER INVENTARIO --}}
                                 <i class="fas fa-boxes"></i> Ver Inventario
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('users.index') }}">
+                            <a class="nav-link" href="#"> {{-- CAMBIAR A LA RUTA REAL DE GESTIONAR ENTRADAS --}}
                                 <i class="fas fa-sign-in-alt"></i> Gestionar Entradas
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('users.index') }}">
+                            <a class="nav-link" href="#"> {{-- CAMBIAR A LA RUTA REAL DE GESTIONAR SALIDAS --}}
                                 <i class="fas fa-sign-out-alt"></i> Gestionar Salidas
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('users.index') }}">
+                            <a class="nav-link" href="#"> {{-- CAMBIAR A LA RUTA REAL DE GESTIONAR PROVEEDORES --}}
                                 <i class="fas fa-truck"></i> Gestionar Proveedores
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('users.index') }}">
+                            <a class="nav-link" href="#"> {{-- CAMBIAR A LA RUTA REAL DEL DASHBOARD BODEGA --}}
                                 <i class="fas fa-warehouse"></i> Dashboard Bodega
                             </a>
                         </li>
-                    @else
+                    @endif
+
+                    {{-- === Bloque para Usuario Normal (visible si no es Admin TI ni Bodega) === --}}
+                    @if(!auth()->user()->isAdmin() && !auth()->user()->isBodega())
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('profile.show') }}">
+                            <a class="nav-link {{ Request::routeIs('profile.show') ? 'active' : '' }}" href="{{ route('profile.show') }}">
                                 <i class="fas fa-user"></i> Ver Perfil
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('user.dashboard') }}">
-                                <i class="fas fa-user-circle"></i>  Dashboard Usuario
+                            <a class="nav-link {{ Request::routeIs('user.dashboard') ? 'active' : '' }}" href="{{ route('user.dashboard') }}">
+                                <i class="fas fa-user-circle"></i> Dashboard Usuario
                             </a>
                         </li>
                     @endif
                 </ul>
+
                 <div class="logout-container">
                     <button class="logout-btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                         Cerrar Sesión
@@ -163,6 +189,30 @@
                 @php session()->forget('show_welcome_message'); @endphp
             @endif
         };
+
+        // Script para el SweetAlert de confirmación de eliminación (opcional, si lo usas en las vistas)
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.delete-alert').forEach(button => {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault(); // Previene el envío inmediato del formulario
+                    Swal.fire({
+                        title: '¿Estás seguro?',
+                        text: "¡No podrás revertir esto!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Sí, eliminar',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.closest('form').submit(); // Envía el formulario si se confirma
+                        }
+                    });
+                });
+            });
+        });
     </script>
+    @stack('scripts') {{-- Aquí se insertarán scripts específicos de las vistas, como Select2 --}}
 </body>
 </html>

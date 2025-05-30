@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
     $middleware->alias([
         'admin_ti' => \App\Http\Middleware\AdminTIMiddleware::class,
+        'admin_ti_bodega' => \App\Http\Middleware\AdminTIOBodegaMiddleware::class,
         // Si tienes otros alias de middleware, agrégalos aquí también
         // 'bodega' => \App\Http\Middleware\BodegaMiddleware::class,
     ]);

@@ -7,7 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\HomeController; 
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\EquipoTIController;
-
+use App\Http\Controllers\InsumoMedicoController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -57,6 +57,14 @@ Route::middleware(['auth'])->group(function () {
         // Rutas de Gestión de Roles
         Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
         // Si hay más acciones CRUD para roles, considera Route::resource('roles', RoleController::class);
+    });
+    // =========================================================================
+    // RUTAS PROTEGIDAS PARA ROLES 'admin_ti' O 'bodega'
+    // =========================================================================
+    Route::middleware(['admin_ti_bodega'])->group(function () {
+        Route::resource('insumos-medicos', InsumoMedicoController::class)->parameters([
+            'insumos-medicos' => 'insumo_medico',
+]);
     });
 
     // Aquí irían otras rutas que requieran autenticación pero no el rol 'admin_ti'
