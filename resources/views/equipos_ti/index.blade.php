@@ -20,17 +20,17 @@
 
             {{-- FORMULARIO DE BÚSQUEDA Y FILTRADO --}}
             <form action="{{ route('equipos-ti.index') }}" method="GET" class="mb-4">
-                <div class="row g-3 align-items-end"> {{-- Una sola fila para filtros y botones --}}
-                    <div class="col-12 col-md-9 col-lg-9"> {{-- Columna para los campos de filtro --}}
-                        <div class="row g-3"> {{-- Fila anidada para los filtros individuales --}}
-                            <div class="col-12 col-md-4"> {{-- Columna para el input de búsqueda --}}
+                <div class="row g-3 align-items-end">
+                    <div class="col-12 col-md-9 col-lg-9">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-4">
                                 <label for="search" class="form-label">Buscar:</label>
                                 <input type="text" name="search" id="search"
                                        class="form-control"
                                        placeholder="Nombre, Ubicación, Serie, Modelo, Marca"
                                        value="{{ request('search') }}">
                             </div>
-                            <div class="col-12 col-md-4"> {{-- Columna para el select de estado --}}
+                            <div class="col-12 col-md-4">
                                 <label for="estado_filtro" class="form-label">Filtrar por Estado:</label>
                                 <select name="estado_filtro" id="estado_filtro" class="form-select">
                                     <option value="">Todos los Estados</option>
@@ -42,7 +42,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-12 col-md-4"> {{-- Columna para el select de usuario --}}
+                            <div class="col-12 col-md-4">
                                 <label for="usuario_filtro" class="form-label">Filtrar por Usuario:</label>
                                 <select name="usuario_filtro" id="usuario_filtro" class="form-select">
                                     <option value="">Todos los Usuarios</option>
@@ -59,7 +59,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 col-md-3 col-lg-3 d-grid gap-2"> {{-- Columna para los botones de acción --}}
+                    <div class="col-12 col-md-3 col-lg-3 d-grid gap-2">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-search"></i> Buscar
                         </button>
@@ -102,6 +102,9 @@
                                 <td>{{ $equipo->marca ?? 'N/A' }}</td>
                                 <td>{{ $equipo->fecha_adquisicion ? $equipo->fecha_adquisicion->format('d/m/Y') : 'N/A' }}</td>
                                 <td class="actions-buttons d-flex gap-2">
+                                    <a href="{{ route('equipos-ti.show', $equipo) }}" class="btn btn-primary btn-sm" title="Ver Detalles">
+                                        <i class="fas fa-eye"></i> Ver
+                                    </a>
                                     <a href="{{ route('equipos-ti.edit', $equipo) }}" class="btn btn-edit">
                                         <i class="fas fa-edit"></i> Editar
                                     </a>
@@ -137,6 +140,6 @@
 </div>
 @endsection
 
-@push('styles')     
+@push('styles')
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
 @endpush

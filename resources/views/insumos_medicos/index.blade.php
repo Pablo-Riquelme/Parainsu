@@ -88,7 +88,7 @@
                                 <td>{{ $insumo->precio ? '$' . number_format($insumo->precio, 2) : 'N/A' }}</td>
                                 <td>{{ $insumo->proveedor ?? 'N/A' }}</td>
                                 <td class="actions-buttons d-flex gap-2">
-                                    <a href="{{ route('insumos-medicos.show', $insumo) }}" class="btn btn-edit">
+                                    <a href="{{ route('insumos-medicos.show', $insumo) }}" class="btn btn-primary btn-sm">
                                     <i class="fas fa-eye"></i> Ver
                                 </a>
                                 <a href="{{ route('insumos-medicos.edit', $insumo) }}" class="btn btn-edit">
