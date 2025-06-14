@@ -48,9 +48,6 @@
 
             {{-- Botones de Acción Global (dentro del card-body, antes de la tabla) --}}
             <div class="d-flex justify-content-end mb-3">
-                <a href="{{ route('insumos-medicos.create') }}" class="btn btn-success me-2">
-                    <i class="fas fa-plus-circle"></i> Agregar Insumo Médico
-                </a>
                 <a href="#" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#exportModal">
                     <i class="fas fa-download"></i> Exportar
                 </a>

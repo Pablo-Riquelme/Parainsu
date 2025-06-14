@@ -79,17 +79,34 @@ class InsumoMedicoController extends Controller
      */
     public function update(Request $request, InsumoMedico $insumoMedico)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'nombre' => 'required|string|max:255',
+            'unidad_medida' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
-            'unidad_medida' => 'required|string|max:50',
             'stock' => 'required|integer|min:0',
             'stock_minimo' => 'nullable|integer|min:0',
-            'precio' => 'nullable|numeric|min:0',
+            'precio' => 'required|numeric|min:0',
             'proveedor' => 'nullable|string|max:255',
         ]);
 
-        $insumoMedico->update($request->all());
+        $oldStock = $insumoMedico->stock;
+
+        $insumoMedico->update($validatedData);
+
+        if ($insumoMedico->stock !== $oldStock) {
+            $tipoMovimiento = ($insumoMedico->stock > $oldStock) ? 'entrada' : 'salida';
+            $cantidadMovida = abs($insumoMedico->stock - $oldStock);
+
+            $movimiento = new \App\Models\Movimiento();
+            $movimiento->tipo = $tipoMovimiento; // <-- ¡CAMBIO AQUÍ! De 'tipo_movimiento' a 'tipo'
+            $movimiento->cantidad = $cantidadMovida;
+            $movimiento->descripcion = "Ajuste de stock desde edición de insumo.";
+            $movimiento->user_id = auth()->id();
+            $movimiento->insumo_medico_id = $insumoMedico->id;
+            $movimiento->equipo_ti_id = null;
+
+            $movimiento->save();
+        }
 
         return redirect()->route('insumos-medicos.index')->with('success', 'Insumo médico actualizado exitosamente.');
     }

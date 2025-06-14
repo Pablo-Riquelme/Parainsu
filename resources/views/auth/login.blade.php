@@ -68,13 +68,6 @@
                                 <p class="error-message">{{ $message }}</p>
                             @enderror
                         </div>
-                        <div class="text-center">
-                            @if (Route::has('password.request'))
-                                <a href="{{ route('password.request') }}" class="forgot-password">
-                                    ¿Olvidó su contraseña?
-                                </a>
-                            @endif
-                        </div>
                         <button type="submit" class="login-button">
                             Ingresar
                         </button>

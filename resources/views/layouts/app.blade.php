@@ -7,22 +7,29 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
+    <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
 
+    <!-- SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.min.css">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
+    <!-- Font Awesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
-    {{-- Considera si necesitas todos estos. custom.css debería ser el principal para overrides. --}}
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet"> {{-- Si es de Vite, @vite ya lo maneja --}}
+    <!-- Custom Project CSS Files -->
+    {{-- <link href="{{ asset('css/app.css') }}" rel="stylesheet"> --}}{{-- Comentado: @vite ya maneja el CSS principal --}}
     <link href="{{ asset('css/home.css') }}" rel="stylesheet">
     <link href="{{ asset('css/index.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/custom.css') }}" rel="stylesheet"> {{-- Este debería tener tus overrides específicos --}}
+    <link href="{{ asset('css/custom.css') }}" rel="stylesheet">
 
+    <!-- Vite Assets (Handles resources/sass/app.scss and resources/js/app.js) -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+
+    @stack('styles') {{-- Para CSS adicional de vistas específicas --}}
 </head>
 <body>
     <div id="app">
@@ -41,97 +48,52 @@
         <nav id="sidebar" class="sidebar">
             <div class="position-sticky">
                 <ul class="nav flex-column">
-                    <li class="nav-item">
-                        {{-- El enlace "Opciones" suele ser el Home --}}
-                        <a class="nav-link {{ Request::routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">
-                            <i class="fas fa-home"></i> Opciones
-                        </a>
-                    </li>
+                    {{-- Volver al Menú Principal (Opciones) - Visible para todos los roles autenticados --}}
+                    {{-- Esta es la ruta al dashboard o home principal --}}
+                    @auth
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">
+                                <i class="fas fa-home"></i> Opciones
+                            </a>
+                        </li>
 
-                    {{-- === Bloque para Administrador TI === --}}
-                    @if(auth()->user()->isAdmin())
-                        <li class="nav-item">
-                            <a class="nav-link {{ Request::routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
-                                <i class="fas fa-chart-line"></i> Dashboard Admin
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ Request::routeIs('users.index') ? 'active' : '' }}" href="{{ route('users.index') }}">
-                                <i class="fas fa-users"></i> Gestionar Usuarios
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ Request::routeIs('roles.index') ? 'active' : '' }}" href="{{ route('roles.index') }}">
-                                <i class="fas fa-user-tag"></i> Gestionar Roles
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#"> {{-- CAMBIAR A LA RUTA REAL DE PERMISOS --}}
-                                <i class="fas fa-key"></i> Gestionar Permisos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ Request::routeIs('equipos-ti.index') ? 'active' : '' }}" href="{{ route('equipos-ti.index') }}">
-                                <i class="fas fa-desktop"></i> Gestionar Equipos TI
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ Request::routeIs('insumos-medicos.index') ? 'active' : '' }}" href="{{ route('insumos-medicos.index') }}">
-                                <i class="fas fa-boxes"></i> Gestionar Insumos Médicos
-                            </a>
-                        </li>
-                    @endif
+                        {{-- Administrar Equipos TI - Rol: admin_ti --}}
+                        @if(auth()->user()->isAdmin())
+                            <li class="nav-item">
+                                <a class="nav-link {{ Request::routeIs('equipos-ti.index') ? 'active' : '' }}" href="{{ route('equipos-ti.index') }}">
+                                    <i class="fas fa-desktop"></i> Administrar Equipos TI
+                                </a>
+                            </li>
+                        @endif
 
-                    {{-- === Bloque para Bodega (visible solo si NO es Admin TI) === --}}
-                    {{-- Si un Admin TI también es Bodega, no necesitamos duplicar los enlaces para ellos. --}}
-                    @if(auth()->user()->isBodega() && !auth()->user()->isAdmin())
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('insumos-medicos.index') }}"> {{-- Para Bodega --}}
-                                <i class="fas fa-boxes"></i> Gestionar Insumos Médicos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#"> {{-- CAMBIAR A LA RUTA REAL DE VER INVENTARIO --}}
-                                <i class="fas fa-boxes"></i> Ver Inventario
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#"> {{-- CAMBIAR A LA RUTA REAL DE GESTIONAR ENTRADAS --}}
-                                <i class="fas fa-sign-in-alt"></i> Gestionar Entradas
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#"> {{-- CAMBIAR A LA RUTA REAL DE GESTIONAR SALIDAS --}}
-                                <i class="fas fa-sign-out-alt"></i> Gestionar Salidas
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#"> {{-- CAMBIAR A LA RUTA REAL DE GESTIONAR PROVEEDORES --}}
-                                <i class="fas fa-truck"></i> Gestionar Proveedores
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#"> {{-- CAMBIAR A LA RUTA REAL DEL DASHBOARD BODEGA --}}
-                                <i class="fas fa-warehouse"></i> Dashboard Bodega
-                            </a>
-                        </li>
-                    @endif
+                        {{-- Administrar Insumos Médicos - Rol: admin_ti y bodega --}}
+                        @if(auth()->user()->isAdmin() || auth()->user()->isBodega())
+                            <li class="nav-item">
+                                <a class="nav-link {{ Request::routeIs('insumos-medicos.index') ? 'active' : '' }}" href="{{ route('insumos-medicos.index') }}">
+                                    <i class="fas fa-boxes"></i> Administrar Insumos Médicos
+                                </a>
+                            </li>
+                        @endif
 
-                    {{-- === Bloque para Usuario Normal (visible si no es Admin TI ni Bodega) === --}}
-                    @if(!auth()->user()->isAdmin() && !auth()->user()->isBodega())
+                        {{-- Administrar Usuarios - Rol: admin_ti --}}
+                        @if(auth()->user()->isAdmin())
+                            <li class="nav-item">
+                                <a class="nav-link {{ Request::routeIs('users.index') ? 'active' : '' }}" href="{{ route('users.index') }}">
+                                    <i class="fas fa-users"></i> Administrar Usuarios
+                                </a>
+                            </li>
+                        @endif
+
+                        {{-- Ver Movimientos - Visible para todos los roles autenticados --}}
                         <li class="nav-item">
-                            <a class="nav-link {{ Request::routeIs('profile.show') ? 'active' : '' }}" href="{{ route('profile.show') }}">
-                                <i class="fas fa-user"></i> Ver Perfil
+                            <a class="nav-link {{ Request::routeIs('movimientos.index') ? 'active' : '' }}" href="{{ route('movimientos.index') }}">
+                                <i class="fas fa-history"></i> Ver Movimientos
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ Request::routeIs('user.dashboard') ? 'active' : '' }}" href="{{ route('user.dashboard') }}">
-                                <i class="fas fa-user-circle"></i> Dashboard Usuario
-                            </a>
-                        </li>
-                    @endif
+                    @endauth
                 </ul>
 
+                {{-- Contenedor de Cerrar Sesión --}}
                 <div class="logout-container">
                     <button class="logout-btn" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                         Cerrar Sesión
@@ -143,15 +105,18 @@
             </div>
         </nav>
 
-        <main class="">
+        <main class="main-content"> {{-- Agregada la clase 'main-content' --}}
             @yield('content')
         </main>
     </div>
 
+    <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.all.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Bootstrap Bundle with Popper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
     <script>
+        // Welcome Message with SweetAlert2
         window.onload = function() {
             @if (session('show_welcome_message'))
                 @if (auth()->check())
@@ -169,7 +134,7 @@
                         text: welcomeText,
                         icon: 'success',
                         confirmButtonText: '¡Entendido!',
-                        timer: 3000,
+                        timer: 3000, // Auto-close after 3 seconds
                         showClass: {
                             popup: `
                                 animate__animated
@@ -190,11 +155,11 @@
             @endif
         };
 
-        // Script para el SweetAlert de confirmación de eliminación (opcional, si lo usas en las vistas)
+        // Script for SweetAlert2 delete confirmation (optional, if you use it in your views)
         document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('.delete-alert').forEach(button => {
                 button.addEventListener('click', function (e) {
-                    e.preventDefault(); // Previene el envío inmediato del formulario
+                    e.preventDefault(); // Prevents immediate form submission
                     Swal.fire({
                         title: '¿Estás seguro?',
                         text: "¡No podrás revertir esto!",
@@ -206,7 +171,7 @@
                         cancelButtonText: 'Cancelar'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            this.closest('form').submit(); // Envía el formulario si se confirma
+                            this.closest('form').submit(); // Submits the form if confirmed
                         }
                     });
                 });
