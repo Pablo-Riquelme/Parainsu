@@ -4,17 +4,19 @@
 
 /* Contenedor Principal de la Vista */
 .container {
-    margin-top: 5.9rem; /* Margen superior igual a la altura de la navbar */
-    margin-left: 250px; /* Margen izquierdo igual al ancho del sidebar */
-    padding: 1rem;
+    /* **AJUSTES CRÍTICOS:** Eliminar estas propiedades de layout ya que .main-content las maneja. */
+    /* margin-top: 5.9rem; */
+    /* margin-left: 250px; */
+    /* width: calc(100% - 250px); */
+    /* min-height: calc(100vh - 5.9rem); */
+    /* max-width: none; */ /* Esto puede mantenerse si quieres que el container sea 100% del padre */
+
+    padding: 1rem; /* Mantener el padding interno */
     display: flex;
     justify-content: flex-start; /* Alineamos el contenido a la izquierda */
     flex-direction: column;
-    align-items: stretch;
-    min-height: calc(100vh - 5.9rem); /* Altura mínima restante */
+    align-items: stretch; /* Estira los elementos hijos para que ocupen el ancho completo */
     box-sizing: border-box; /* Importante para que padding no afecte el ancho total */
-    width: calc(100% - 250px); /* Ancho restante */
-    max-width: none; /* Asegura que no haya un max-width que interfiera con el cálculo del ancho */
 }
 
 /* Tarjeta Principal (Card) */
@@ -46,7 +48,6 @@
     margin-bottom: 0; /* Elimina el margen por defecto de h1 si es el caso */
     color: inherit; /* Hereda el color blanco del padre */
 }
-
 
 /* Cuerpo de la Tarjeta */
 .card-body {
@@ -336,6 +337,7 @@
     .container {
         margin-left: 0; /* Elimina el margen del sidebar en móviles */
         width: 100%; /* Ocupa todo el ancho */
+        padding: 15px; /* Asegura un padding adecuado en móviles */
     }
 
     .card-header {

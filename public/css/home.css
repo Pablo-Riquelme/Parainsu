@@ -1,3 +1,4 @@
+/* public/css/home.css */
 body {
     font-family: 'Arial', sans-serif;
     margin: 0;
@@ -22,7 +23,6 @@ body {
 
 .top-navbar .navbar-icon-left {
     height: 60px;
-    
 }
 
 
@@ -31,12 +31,12 @@ body {
 }
 
 .top-navbar .user-info {
-    color: #348FFF; 
-    font-size: 1.2rem; 
-    font-weight: bold; 
+    color: #348FFF;
+    font-size: 1.2rem;
+    font-weight: bold;
     margin: 0;
     white-space: nowrap;
-    font-family: 'Source Sans Pro', sans-serif; 
+    font-family: 'Source Sans Pro', sans-serif;
 }
 
 
@@ -45,7 +45,7 @@ body {
     background-color: #348FFF;
     height: 100vh;
     position: fixed;
-    top: 5.9rem;
+    top: 5.9rem; /* Sidebar empieza 5.9rem debajo del top */
     left: 0;
     padding: 1rem 0;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
@@ -98,7 +98,9 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: calc(100vh - 4rem);
+    /* **ÚNICA MODIFICACIÓN AQUÍ:** Ajuste del margen superior para despegar de la navbar */
+    margin-top: 5.9rem; /* Agrega espacio superior igual al 'top' del sidebar */
+    min-height: calc(100vh - 5.9rem); /* Ajusta la altura mínima para considerar el margen superior */
     box-sizing: border-box;
     background-color: #ffffff;
     position: relative;

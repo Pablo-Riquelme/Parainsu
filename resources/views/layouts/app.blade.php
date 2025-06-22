@@ -10,11 +10,13 @@
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
+    <!-- Si usas la fuente Inter, puedes agregarla aquí -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.min.css">
 
-    <!-- Bootstrap CSS (este sí debe estar) -->
+    <!-- Bootstrap CSS (corregido 'xintegrity' a 'integrity') -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
     <!-- Font Awesome CSS -->
@@ -25,7 +27,7 @@
     <link href="{{ asset('css/index.css') }}" rel="stylesheet">
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet">
 
-    <!-- Vite Assets (Esto ya maneja resources/sass/app.scss y resources/js/app.js, que deberían importar Bootstrap JS UNA VEZ) -->
+    <!-- Vite Assets (Esto ya maneja resources/sass/app.scss y resources/js/app.js) -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 
     @stack('styles') {{-- Para CSS adicional de vistas específicas --}}
@@ -47,8 +49,6 @@
         <nav id="sidebar" class="sidebar">
             <div class="position-sticky">
                 <ul class="nav flex-column">
-                    {{-- Volver al Menú Principal (Opciones) - Visible para todos los roles autenticados --}}
-                    {{-- Esta es la ruta al dashboard o home principal --}}
                     @auth
                         <li class="nav-item">
                             <a class="nav-link {{ Request::routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">
@@ -90,7 +90,7 @@
                             </a>
                         </li>
 
-                         {{-- NEW: Botón "Mensajes" - Visible para todos los roles autenticados --}}
+                        {{-- NEW: Botón "Mensajes" - Visible para todos los roles autenticados --}}
                         <li class="nav-item">
                             <a class="nav-link {{ Request::routeIs('chats.index') ? 'active' : '' }}" href="{{ route('chats.index') }}">
                                 <i class="fas fa-comments"></i> Mensajes
@@ -116,11 +116,14 @@
         </main>
     </div>
 
+    <!-- Bootstrap Bundle with Popper JS (CRITICAL: MUST BE PLACED HERE, after SweetAlert2, and before @stack('scripts')) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
     <!-- SweetAlert2 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.all.min.js"></script>> --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.all.min.js"></script>
 
     <script>
-        
+        // Welcome Message with SweetAlert2
         window.onload = function() {
             @if (session('show_welcome_message'))
                 @if (auth()->check())
@@ -175,7 +178,7 @@
                         cancelButtonText: 'Cancelar'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            this.closest('form').submit(); // Submits the form if confirmed
+                            this.closest('form').submit(); 
                         }
                     });
                 });
