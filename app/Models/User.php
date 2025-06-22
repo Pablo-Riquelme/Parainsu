@@ -2,20 +2,19 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable; // Ya tienes HasApiTokens aquí, ahora está importado.
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var list<string>
+     * @var array<string>
      */
     protected $fillable = [
         'name',
@@ -27,7 +26,7 @@ class User extends Authenticatable
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var list<string>
+     * @var array<string>
      */
     protected $hidden = [
         'password',
@@ -47,6 +46,9 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Get the role that belongs to the user.
+     */
     public function role()
     {
         return $this->belongsTo(Role::class);
@@ -59,18 +61,52 @@ class User extends Authenticatable
      */
     public function isAdmin()
     {
-        return $this->role->name === 'admin_ti'; 
+        return $this->role->name === 'admin_ti';
     }
+
+    /**
+     * Check if the user is a bodega user.
+     *
+     * @return bool
+     */
     public function isBodega()
     {
         return $this->role->name === 'bodega';
     }
+
+    /**
+     * Check if the user is a normal user.
+     *
+     * @return bool
+     */
     public function isUser()
     {
-        return $this->role->name === 'usuario_normal'; 
+        return $this->role->name === 'usuario_normal';
     }
+
+    /**
+     * Get the EquiposTI associated with the user.
+     */
     public function equiposTI()
     {
         return $this->hasMany(EquipoTI::class, 'usuario_asignado_id');
+    }
+
+    /**
+     * Get the chats the user belongs to.
+     * Un usuario puede estar en muchos chats (relación muchos a muchos).
+     */
+    public function chats()
+    {
+        return $this->belongsToMany(Chat::class);
+    }
+
+    /**
+     * Get the messages sent by the user.
+     * Un usuario ha enviado muchos mensajes.
+     */
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
     }
 }

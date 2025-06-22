@@ -14,19 +14,18 @@
     <!-- SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.min.css">
 
-    <!-- Bootstrap CSS -->
+    <!-- Bootstrap CSS (este sí debe estar) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
     <!-- Font Awesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <!-- Custom Project CSS Files -->
-    {{-- <link href="{{ asset('css/app.css') }}" rel="stylesheet"> --}}{{-- Comentado: @vite ya maneja el CSS principal --}}
     <link href="{{ asset('css/home.css') }}" rel="stylesheet">
     <link href="{{ asset('css/index.css') }}" rel="stylesheet">
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet">
 
-    <!-- Vite Assets (Handles resources/sass/app.scss and resources/js/app.js) -->
+    <!-- Vite Assets (Esto ya maneja resources/sass/app.scss y resources/js/app.js, que deberían importar Bootstrap JS UNA VEZ) -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 
     @stack('styles') {{-- Para CSS adicional de vistas específicas --}}
@@ -90,6 +89,13 @@
                                 <i class="fas fa-history"></i> Ver Movimientos
                             </a>
                         </li>
+
+                         {{-- NEW: Botón "Mensajes" - Visible para todos los roles autenticados --}}
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::routeIs('chats.index') ? 'active' : '' }}" href="{{ route('chats.index') }}">
+                                <i class="fas fa-comments"></i> Mensajes
+                            </a>
+                        </li>
                     @endauth
                 </ul>
 
@@ -111,12 +117,10 @@
     </div>
 
     <!-- SweetAlert2 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.all.min.js"></script>
-    <!-- Bootstrap Bundle with Popper JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.all.min.js"></script>> --}}
 
     <script>
-        // Welcome Message with SweetAlert2
+        
         window.onload = function() {
             @if (session('show_welcome_message'))
                 @if (auth()->check())
