@@ -2,90 +2,65 @@
 
 @extends('layouts.app')
 
-@section('title', 'Mis Mensajes')
+@section('title', 'Mis Chats')
 
 @section('content')
-<div class="container">
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-            <h1 class="card-title mb-0">
-                <i class="fas fa-comments"></i> Mis Mensajes
-            </h1>
-        </div>
-        <div class="card-body">
-            @if($chats->isEmpty())
-                <p class="text-muted text-center">Aún no tienes conversaciones. ¡Inicia una!</p>
-            @else
-                <ul class="list-group list-group-flush">
-                    @foreach($chats as $chat)
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <a href="{{ route('chat.show', $chat->id) }}" class="text-decoration-none h5">
-                                    @if($chat->es_privado)
-                                        @php
-                                            $otherUser = $chat->users->first(function($user) {
-                                                return $user->id !== Auth::id();
-                                            });
-                                        @endphp
-                                        @if($otherUser)
-                                            <i class="fas fa-user-circle"></i> {{ $otherUser->name }}
-                                        @else
-                                            <i class="fas fa-question-circle"></i> Chat Privado (Usuario desconocido)
-                                        @endif
-                                    @else
-                                        <i class="fas fa-users"></i> {{ $chat->nombre }}
-                                    @endif
-                                </a>
-                                <div class="small text-muted">Última actividad: {{ $chat->updated_at->diffForHumans() }}</div>
-                            </div>
-                            <a href="{{ route('chat.show', $chat->id) }}" class="btn btn-sm btn-outline-primary">Abrir <i class="fas fa-arrow-right"></i></a>
-                        </li>
-                    @endforeach
-                </ul>
-            @endif
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2><i class="fas fa-comments"></i> Mis Mensajes</h2>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newChatModal">
+            <i class="fas fa-plus-circle"></i> Iniciar Nuevo Chat
+        </button>
+    </div>
 
-            <div class="mt-4 text-center">
-                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newChatModal">
-                    <i class="fas fa-plus-circle"></i> Iniciar Nuevo Chat
-                </button>
+    @forelse ($chats as $chat)
+        @php
+            $otherUser = $chat->users->firstWhere('id', '!=', Auth::id());
+        @endphp
+        <div class="card mb-2">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-1">
+                        <i class="fas fa-user"></i> {{ $otherUser->name ?? 'Usuario desconocido' }}
+                    </h5>
+                    <small class="text-muted">Última actividad: {{ $chat->updated_at->diffForHumans() }}</small>
+                </div>
+                <a href="{{ route('chat.show', $chat->id) }}" class="btn btn-primary">
+                    Abrir <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
         </div>
-        <div class="card-footer text-center">
-            <a href="{{ route('home') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-circle-left"></i> Volver al Menú Principal
-            </a>
-        </div>
-    </div>
+    @empty
+        <div class="alert alert-info">No tienes chats aún.</div>
+    @endforelse
+
+    <a href="{{ route('home') }}" class="btn btn-secondary mt-3">
+        <i class="fas fa-arrow-left"></i> Volver al Menú Principal
+    </a>
 </div>
 
-{{-- Modal para iniciar Nuevo Chat --}}
+<!-- Modal para crear un nuevo chat -->
 <div class="modal fade" id="newChatModal" tabindex="-1" aria-labelledby="newChatModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
+        <div class="modal-content shadow">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="newChatModalLabel">Iniciar Nuevo Chat Privado</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <form id="start-new-chat-form">
-                    <div class="mb-3">
-                        <label for="recipient-user" class="form-label">Selecciona un Usuario:</label>
-                        <select class="form-select" id="recipient-user" required>
-                            @if($otherUsers->isEmpty())
-                                <option value="">No hay otros usuarios disponibles</option>
-                            @else
-                                <option value="">Selecciona un usuario</option>
-                                @foreach($otherUsers as $user)
-                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
-                                @endforeach
-                            @endif
-                        </select>
-                    </div>
-                </form>
+                <div class="mb-3">
+                    <label for="user-select" class="form-label">Selecciona un Usuario:</label>
+                    <select id="user-select" class="form-select">
+                        <option value="">Selecciona un usuario</option>
+                        @foreach ($otherUsers as $user)
+                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="start-chat-btn">Iniciar Chat</button>
+                <button type="button" id="start-chat-button" class="btn btn-primary">Iniciar Chat</button>
             </div>
         </div>
     </div>
@@ -94,7 +69,10 @@
 
 @push('scripts')
 <script>
-    // Custom message display function
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('Script de chats/index.blade.php cargado y DOM listo.');
+
+    // Función personalizada para mostrar mensajes (reemplaza alert()/Swal.fire para validaciones)
     function showMessage(message, type = 'info') {
         const messageBox = document.createElement('div');
         messageBox.textContent = message;
@@ -105,16 +83,15 @@
             animation: fadeOut 3s forwards;
             opacity: 1;
             transition: opacity 0.5s ease-out;
-            z-index: 1050; /* Ensure it's above modal backdrops */
+            z-index: 1050; /* Asegura que esté por encima de backdrops modales */
         `;
         document.body.appendChild(messageBox);
 
         setTimeout(() => {
             messageBox.style.opacity = '0';
             messageBox.addEventListener('transitionend', () => messageBox.remove());
-        }, 2500); // Message visible for 2.5 seconds, then fades out
+        }, 2500);
 
-        // Add keyframes for fadeOut if not already in CSS (only once)
         if (!document.getElementById('fadeOutKeyframes')) {
             const style = document.createElement('style');
             style.id = 'fadeOutKeyframes';
@@ -129,144 +106,128 @@
         }
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('Script de chats/index.blade.php cargado y DOM listo.');
-
-        // Precargar el token de API para usarlo en JavaScript
-        // Asegúrate de que Auth::user() no sea nulo antes de llamar a createToken
-        const API_TOKEN = "{{ Auth::user() ? Auth::user()->createToken('create-chat-token')->plainTextToken : '' }}";
-        if (!API_TOKEN) {
-            console.error('ERROR: No se pudo generar el token de API. El usuario puede no estar autenticado o hay un problema con la generación del token.');
-            showMessage('Error de autenticación: No se pudo preparar el chat.', 'danger');
-            // Podrías deshabilitar el botón de chat si no hay token
-            const startNewChatButton = document.querySelector('button[data-bs-target="#newChatModal"]');
-            if (startNewChatButton) {
-                startNewChatButton.disabled = true;
-                startNewChatButton.textContent = 'Iniciar Nuevo Chat (Error)';
-            }
-            return; // Detener la ejecución si no hay token
-        } else {
-            console.log('Token de API precargado.');
+    // Función para limpiar todos los modal-backdrops y la clase 'modal-open' del body
+    function cleanAllModalBackdrops() {
+        console.log('Ejecutando cleanAllModalBackdrops...');
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => {
+            backdrop.remove();
+            console.log('modal-backdrop eliminado.');
+        });
+        // Asegurarse de que 'modal-open' se elimine del body si no hay modales activos
+        if (document.querySelectorAll('.modal.show').length === 0 && document.body.classList.contains('modal-open')) {
+            document.body.classList.remove('modal-open');
+            console.log('Clase modal-open eliminada del body.');
         }
+        document.body.style.overflow = ''; // Restaurar el scroll del body
+        console.log('Scroll del body restaurado.');
+    }
 
-        const newChatModalElement = document.getElementById('newChatModal');
-        const recipientSelect = document.getElementById('recipient-user');
-        const startChatBtn = document.getElementById('start-chat-btn');
+    // *** CRÍTICO: Ejecutar al cargar la página para limpiar backdrops de sesiones anteriores ***
+    cleanAllModalBackdrops();
 
-        if (!newChatModalElement) {
-            console.error('ERROR: Elemento del modal #newChatModal no encontrado en el DOM.');
+    const newChatModalElement = document.getElementById('newChatModal');
+    const userSelect = document.getElementById('user-select');
+    const startChatBtn = document.getElementById('start-chat-button');
+
+    // Validación de existencia de elementos del DOM
+    if (!newChatModalElement || !userSelect || !startChatBtn) {
+        console.error('ERROR: Uno o más elementos del modal no se encontraron en el DOM.');
+        showMessage('Error interno: Faltan elementos de la interfaz. Recarga la página.', 'danger');
+        return;
+    }
+
+    // Precargar el token de API para usarlo en JavaScript
+    const API_TOKEN = "{{ Auth::user() ? Auth::user()->createToken('start-chat-token')->plainTextToken : '' }}";
+    if (!API_TOKEN) {
+        console.error('ERROR: No se pudo generar el token de API. El usuario puede no estar autenticado o hay un problema con la generación del token.');
+        showMessage('Error de autenticación: No se pudo preparar el chat. Por favor, vuelve a iniciar sesión.', 'danger');
+        startChatBtn.disabled = true; // Deshabilitar el botón si no hay token
+        startChatBtn.textContent = 'Error de Autenticación';
+        return;
+    } else {
+        console.log('Token de API precargado con éxito.');
+    }
+
+    // Obtener la instancia del modal de Bootstrap
+    let newChatModalInstance;
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        newChatModalInstance = new bootstrap.Modal(newChatModalElement);
+        console.log('Instancia de Bootstrap Modal creada con éxito para #newChatModal.');
+    } else {
+        console.error('ERROR: Bootstrap 5 JS (window.bootstrap.Modal) NO está disponible. El modal no funcionará correctamente.');
+        showMessage('Error: El JavaScript de Bootstrap no se cargó correctamente. El modal no funcionará.', 'danger');
+        return;
+    }
+
+    // Listener para el botón "Iniciar Chat"
+    startChatBtn.addEventListener('click', async () => {
+        console.log('Botón "Iniciar Chat" clickeado.');
+        const selectedUserId = userSelect.value;
+
+        if (!selectedUserId) {
+            showMessage('Por favor, selecciona un usuario antes de iniciar el chat.', 'warning');
+            console.log('Validación: No se seleccionó usuario.');
             return;
         }
-        if (!recipientSelect) {
-            console.error('ERROR: Elemento del select #recipient-user no encontrado en el DOM.');
-            return;
-        }
-        if (!startChatBtn) {
-            console.error('ERROR: Botón #start-chat-btn no encontrado en el DOM.');
-            return;
-        }
 
-        // Función para limpiar todos los modal-backdrops y la clase 'modal-open' del body
-        function cleanAllModalBackdrops() {
-            console.log('Ejecutando cleanAllModalBackdrops...');
-            const backdrops = document.querySelectorAll('.modal-backdrop');
-            backdrops.forEach(backdrop => {
-                backdrop.remove();
-                console.log('modal-backdrop eliminado.');
+        showMessage('Iniciando chat...', 'info');
+        console.log('Intentando iniciar chat con usuario ID:', selectedUserId);
+
+        try {
+            const response = await fetch('/api/chats/private', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${API_TOKEN}` // Usar el token precargado
+                },
+                body: JSON.stringify({ recipient_user_id: selectedUserId })
             });
-            // Asegurarse de que 'modal-open' se elimine del body
-            if (document.body.classList.contains('modal-open')) {
-                document.body.classList.remove('modal-open');
-                console.log('Clase modal-open eliminada del body.');
-            }
-            document.body.style.overflow = ''; // Restaurar el scroll si fue deshabilitado
-            console.log('Scroll del body restaurado.');
-        }
 
-        // Ejecutar al cargar la página para limpiar backdrops que puedan haberse quedado de una sesión anterior
-        cleanAllModalBackdrops();
+            console.log('Respuesta de la API recibida. Status:', response.status);
+            const result = await response.json();
+            console.log('Resultado JSON de la API:', result);
 
-        // Obtener la instancia del modal de Bootstrap
-        let newChatModalInstance;
-        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-            newChatModalInstance = new bootstrap.Modal(newChatModalElement);
-            console.log('Instancia de Bootstrap Modal creada con éxito para #newChatModal.');
-        } else {
-            console.error('ERROR: Bootstrap 5 JS (window.bootstrap.Modal) NO está disponible. El modal no funcionará correctamente.');
-            showMessage('Error: Bootstrap JS no cargado. El modal no funcionará.', 'danger');
-            return;
-        }
+            if (response.ok && result.chat_id) {
+                showMessage(result.message || 'Chat iniciado con éxito.', 'success');
+                // Al escuchar 'hidden.bs.modal', la redirección se manejará después de que el modal se oculte completamente
+                newChatModalElement.addEventListener('hidden.bs.modal', function redirectAfterHide() {
+                    console.log('Redirigiendo a /chat/' + result.chat_id);
+                    window.location.href = `/chat/${result.chat_id}`;
+                    newChatModalElement.removeEventListener('hidden.bs.modal', redirectAfterHide); // Eliminar el listener después de usarlo
+                }, { once: true }); // { once: true } asegura que el listener se ejecute solo una vez
 
-        // Manejar el botón "Iniciar Chat" del modal (usando fetch API)
-        startChatBtn.addEventListener('click', async function () {
-            console.log('Botón "Iniciar Chat" clickeado.');
-            const recipientUserId = recipientSelect.value;
-            if (!recipientUserId) {
-                showMessage('Por favor, selecciona un usuario para iniciar el chat.', 'warning');
-                console.log('No se seleccionó usuario.');
-                return;
-            }
-            console.log('Intentando iniciar chat con usuario ID:', recipientUserId);
-            showMessage('Iniciando chat...', 'info');
-
-            try {
-                console.log('Enviando solicitud POST a /api/chats/private...');
-                const response = await fetch('/api/chats/private', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': `Bearer ${API_TOKEN}`, // Usar el token precargado
-                    },
-                    body: JSON.stringify({ recipient_user_id: recipientUserId })
-                });
-
-                console.log('Respuesta de la API recibida. Status:', response.status);
-
-                const result = await response.json();
-                console.log('Resultado JSON de la API:', result);
-
-                if (response.ok) {
-                    showMessage(result.message || 'Chat iniciado con éxito.', 'success');
-                    if (newChatModalInstance) {
-                        newChatModalInstance.hide(); // Oculta el modal de Bootstrap
-                    }
-                    if (result.chat_id) {
-                        console.log('Redirigiendo a /chat/' + result.chat_id);
-                        window.location.href = `/chat/${result.chat_id}`; // Redirigir al chat
-                    } else {
-                        console.warn('Advertencia: chat_id no recibido en la respuesta del API.');
-                        // Si no hay chat_id, al menos recargar la página para ver el nuevo chat en la lista
-                        window.location.reload();
-                    }
-                } else {
-                    console.error('Error al iniciar chat (respuesta del servidor): Status', response.status, 'Status Text:', response.statusText, 'Detalles:', result);
-                    let errorMessage = 'Error al iniciar chat: ' + (result.message || 'Desconocido');
-                    if (result.errors) {
-                        errorMessage += '\nDetalles: ' + Object.values(result.errors).flat().join(', ');
-                    }
-                    showMessage(errorMessage, 'danger');
+                newChatModalInstance.hide(); // Oculta el modal, lo que disparará el evento 'hidden.bs.modal'
+            } else {
+                let errorMessage = 'Error al iniciar chat: ' + (result.message || 'Desconocido');
+                if (result.errors) {
+                    errorMessage += '\nDetalles: ' + Object.values(result.errors).flat().join(', ');
                 }
-            } catch (error) {
-                console.error('Error de red o JavaScript al iniciar chat:', error);
-                showMessage('Error de conexión o de la aplicación al iniciar chat.', 'danger');
+                showMessage(errorMessage, 'danger');
+                console.error('Error de API:', result);
             }
-        });
-
-        // Asegurarse de limpiar backdrops y la clase 'modal-open' cuando el modal se oculta por cualquier vía
-        newChatModalElement.addEventListener('hidden.bs.modal', function () {
-            console.log('Evento hidden.bs.modal disparado para #newChatModal. Limpiando backdrops.');
-            cleanAllModalBackdrops(); // Ejecutar la limpieza al cerrar
-        });
-
-        // Asegurarse de limpiar backdrops también si el modal se cierra mediante el botón de cierre directo del modal
-        const closeButton = newChatModalElement.querySelector('.btn-close');
-        if (closeButton) {
-            closeButton.addEventListener('click', function() {
-                console.log('Botón de cierre del modal clickeado. Limpiando backdrops.');
-                // La función cleanAllModalBackdrops se ejecutará vía 'hidden.bs.modal'
-            });
+        } catch (error) {
+            console.error('Error de red al iniciar chat:', error);
+            showMessage('Error de conexión o de la aplicación al iniciar chat.', 'danger');
         }
     });
+
+    // Listener para asegurar la limpieza del backdrop cuando el modal se oculta (por cualquier medio)
+    newChatModalElement.addEventListener('hidden.bs.modal', function () {
+        console.log('Evento hidden.bs.modal disparado para #newChatModal.');
+        cleanAllModalBackdrops(); // Llamar a la función de limpieza
+    });
+
+    // Listener para cuando el modal se abre, para verificar el estado
+    newChatModalElement.addEventListener('shown.bs.modal', function () {
+        console.log('Modal #newChatModal ahora es visible. Verificando estado del body y backdrops.');
+        // Opcional: Asegurarse de que 'modal-open' esté presente y no haya backdrops extra
+        if (!document.body.classList.contains('modal-open')) {
+            console.warn("La clase 'modal-open' no está en el body después de abrir el modal.");
+        }
+        cleanAllModalBackdrops(); // Una limpieza preventiva al mostrar también
+    });
+});
 </script>
 @endpush
