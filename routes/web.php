@@ -57,7 +57,7 @@
                 abort(403, 'No tienes acceso a este chat.');
             }
             return view('chats.show', compact('chat'));
-        })->name('chats.show');
+        })->name('chat.show');
 
 
         // =========================================================================
