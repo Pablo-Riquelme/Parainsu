@@ -84,6 +84,12 @@
             Route::resource('insumos-medicos', InsumoMedicoController::class)->parameters([
                 'insumos-medicos' => 'insumo_medico',
             ]);
+            // =========================================================================
+        // RUTAS DE EXPORTACIÓN DE INSUMOS MÉDICOS (AÑADIDAS AQUÍ)
+        // =========================================================================
+        // Asegúrate de que estas dos líneas estén presentes
+        Route::get('insumos-medicos/export/excel', [InsumoMedicoController::class, 'exportExcel'])->name('insumos-medicos.export.excel');
+        Route::get('insumos-medicos/export/pdf', [InsumoMedicoController::class, 'exportPdf'])->name('insumos-medicos.export.pdf');
         });
 
     }); // Cierre del grupo de middleware 'auth'

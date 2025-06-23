@@ -4,6 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\InsumoMedico;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel; // <-- Añadido para Excel
+use Barryvdh\DomPDF\Facade\Pdf;       // <-- Añadido para PDF
+
+// Asegúrate de crear este archivo: app/Exports/InsumosMedicosExport.php
+use App\Exports\InsumosMedicosExport; // <-- Añadido para la clase de exportación de Excel
 
 class InsumoMedicoController extends Controller
 {
@@ -98,7 +103,7 @@ class InsumoMedicoController extends Controller
             $cantidadMovida = abs($insumoMedico->stock - $oldStock);
 
             $movimiento = new \App\Models\Movimiento();
-            $movimiento->tipo = $tipoMovimiento; // <-- ¡CAMBIO AQUÍ! De 'tipo_movimiento' a 'tipo'
+            $movimiento->tipo = $tipoMovimiento;
             $movimiento->cantidad = $cantidadMovida;
             $movimiento->descripcion = "Ajuste de stock desde edición de insumo.";
             $movimiento->user_id = auth()->id();
@@ -119,5 +124,52 @@ class InsumoMedicoController extends Controller
         $insumoMedico->delete();
 
         return redirect()->route('insumos-medicos.index')->with('success', 'Insumo médico eliminado exitosamente.');
+    }
+
+    /**
+     * Exportar insumos médicos a Excel.
+     * Añade este método.
+     */
+    public function exportExcel(Request $request)
+    {
+        // Aplicar los mismos filtros que en la vista index para asegurar que la exportación sea consistente
+        $query = InsumoMedico::query();
+        if ($request->filled('nombre_filtro')) {
+            $search = $request->input('nombre_filtro');
+            $query->where(function ($q) use ($search) {
+                $q->where('nombre', 'like', '%' . $search . '%')
+                  ->orWhere('descripcion', 'like', '%' . $search . '%')
+                  ->orWhere('unidad_medida', 'like', '%' . $search . '%')
+                  ->orWhere('proveedor', 'like', '%' . $search . '%'); // Puedes añadir más campos aquí si los filtras en el index
+            });
+        }
+
+        // Se pasa la colección de resultados a la clase de exportación
+        return Excel::download(new InsumosMedicosExport($query->get()), 'insumos_medicos.xlsx');
+    }
+
+    /**
+     * Exportar insumos médicos a PDF.
+     * Añade este método.
+     */
+    public function exportPdf(Request $request)
+    {
+        // Aplicar los mismos filtros que en la vista index
+        $query = InsumoMedico::query();
+        if ($request->filled('nombre_filtro')) {
+            $search = $request->input('nombre_filtro');
+            $query->where(function ($q) use ($search) {
+                $q->where('nombre', 'like', '%' . $search . '%')
+                  ->orWhere('descripcion', 'like', '%' . $search . '%')
+                  ->orWhere('unidad_medida', 'like', '%' . $search . '%')
+                  ->orWhere('proveedor', 'like', '%' . $search . '%'); // Añade los mismos campos que en exportExcel
+            });
+        }
+
+        $insumos = $query->get();
+
+        // Cargar la vista con los datos y generar el PDF
+        $pdf = Pdf::loadView('insumos_medicos.pdf', compact('insumos'));
+        return $pdf->download('insumos_medicos.pdf');
     }
 }
