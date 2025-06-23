@@ -13,15 +13,16 @@
         "axios": "^1.8.2",
         "bootstrap": "^5.2.3",
         "concurrently": "^9.0.1",
+        "laravel-echo": "^2.1.6",
         "laravel-vite-plugin": "^1.2.0",
         "postcss": "^8.5.3",
+        "pusher-js": "^8.4.0",
         "sass": "^1.56.1",
         "tailwindcss": "^4.1.6",
         "vite": "^5.0.0",
         "vue": "^3.2.37"
     },
     "dependencies": {
-        "laravel-echo": "^2.1.5",
         "sweetalert2": "^11.21.0"
     }
 }

@@ -1,0 +1,167 @@
+/* public/css/global-layout.css */
+
+/* Variables CSS para alturas y anchos */
+:root {
+    --top-navbar-height: 60px; /* Ajusta si tu navbar superior es más alta/baja */
+    --sidebar-width: 250px; /* Ajusta si tu sidebar tiene otro ancho */
+}
+
+/* Estilos globales para html, body, y #app para layout de altura completa */
+html, body {
+    height: 100%; /* Asegura que html y body ocupen el 100% de la altura de la ventana */
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Evita scrolls no deseados en el body principal */
+
+    /* --- Imagen de Fondo GLOBAL y FIJA --- */
+    background-image: url('../images/fondo1.jpg'); /* Ruta relativa a public/css/ */
+    background-size: cover; /* La imagen cubrirá todo el viewport */
+    background-position: center; /* Centra la imagen */
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+    background-attachment: fixed; /* ¡Hace que la imagen se quede fija al hacer scroll! */
+
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Tu fuente global */
+    color: #333; /* Color de texto por defecto */
+}
+
+#app {
+    height: 100%;
+    display: flex;
+    flex-direction: column; /* Apila top-navbar, sidebar y main-content verticalmente */
+}
+
+/* --- Top Navbar Styles --- */
+.top-navbar {
+    background-color: rgba(255, 255, 255, 0.95); /* Semitransparente */
+    backdrop-filter: blur(10px);
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e5e7eb;
+    position: fixed; /* Fija la barra en la parte superior */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: var(--top-navbar-height); /* Altura fija para la navbar */
+    z-index: 1030; /* Asegura que esté por encima de todo */
+}
+
+.top-navbar .navbar-icon-left {
+    height: 60px;
+}
+.top-navbar .navbar-icon-right {
+    height: 60px;
+}
+.top-navbar .user-info {
+    color: #348FFF;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 0;
+    white-space: nowrap;
+    font-family: 'Source Sans Pro', sans-serif;
+}
+
+/* --- Sidebar Styles --- */
+#sidebar {
+    width: var(--sidebar-width);
+    background-color: #348FFF;
+    height: calc(100vh - var(--top-navbar-height)); /* Ocupa el alto restante después de la navbar */
+    position: fixed; /* Fija la sidebar a la izquierda */
+    top: var(--top-navbar-height); /* Empieza justo debajo de la navbar */
+    left: 0;
+    padding: 1rem 0;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    overflow-y: auto; /* Permite scroll si el contenido es largo */
+    z-index: 1000;
+}
+
+#sidebar .nav-item .nav-link {
+    text-decoration: none;
+    color: white;
+    display: block;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+    font-weight: bold;
+}
+#sidebar .nav-item .nav-link:hover {
+    background-color: #ffffff;
+    color:#348FFF;
+}
+#sidebar .nav-item .nav-link i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+#sidebar .nav-item:first-child .nav-link {
+    background-color: transparent;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bolder;
+    padding-left: 1rem;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+    cursor: default;
+}
+#sidebar .nav-item:first-child .nav-link:hover {
+    background-color: transparent;
+}
+
+/* --- Main Content Area Styles (Global for all pages) --- */
+.main-content-wrapper { /* Contenedor de TODO el contenido que se desliza */
+    margin-left: var(--sidebar-width); /* Desplaza el contenido a la derecha de la sidebar */
+    width: calc(100% - var(--sidebar-width)); /* Ocupa el ancho restante */
+    height: calc(100vh - var(--top-navbar-height)); /* Ocupa el alto restante después de la navbar */
+    position: relative; /* Base para contenido interno */
+    top: var(--top-navbar-height); /* Empieza debajo de la navbar superior */
+    overflow-y: auto; /* ¡Permite scroll para el contenido de la página si es muy largo! */
+    padding: 20px; /* Padding por defecto para el contenido de todas las páginas */
+    box-sizing: border-box;
+    background-color: transparent; /* Fondo transparente para que se vea la imagen del body */
+    z-index: 1; /* Asegura que esté por encima de la imagen de fondo si fuera necesario */
+}
+
+/* Estilos para el botón de cerrar sesión */
+.logout-container {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 1100;
+}
+.logout-btn {
+    background-color: #cf1b1b;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.logout-btn:hover {
+    background-color: #f7614d;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) { /* Para tablets y móviles */
+    .top-navbar {
+        position: relative;
+        height: auto;
+    }
+    #sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        top: 0;
+        padding-top: 0;
+        box-shadow: none;
+    }
+    .main-content-wrapper {
+        margin-left: 0;
+        width: 100%;
+        height: auto;
+        position: relative;
+        top: 0;
+        padding: 15px;
+    }
+}

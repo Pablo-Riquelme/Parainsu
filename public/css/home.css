@@ -1,9 +1,21 @@
 /* public/css/home.css */
-body {
-    font-family: 'Arial', sans-serif;
+html, body {
+    height: 100%; /* Asegura que html y body ocupen el 100% de la altura de la ventana */
     margin: 0;
     padding: 0;
-    background-color: #f4f4f9;
+    overflow: hidden; /* Evita scrolls no deseados en el body */
+}
+
+#app {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Variables CSS para alturas y anchos */
+:root {
+    --top-navbar-height: 60px; /* Ajusta si tu navbar superior es más alta/baja */
+    --sidebar-width: 250px; /* Ajusta si tu sidebar tiene otro ancho */
 }
 
 .top-navbar {
@@ -11,25 +23,23 @@ body {
     backdrop-filter: blur(10px);
     padding: 1rem 1.5rem;
     display: flex;
-    justify-content: space-between; /* Distribuye el espacio entre los elementos directos */
+    justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #e5e7eb;
-    position: fixed; /* Cambiado de relative a fixed */
+    position: fixed; /* Mantenemos fixed */
     top: 0;
     left: 0;
     width: 100%;
-    z-index: 10;
+    height: var(--top-navbar-height); /* Altura fija para la navbar */
+    z-index: 1030; /* Asegura que esté por encima de todo */
 }
 
 .top-navbar .navbar-icon-left {
     height: 60px;
 }
-
-
 .top-navbar .navbar-icon-right {
     height: 60px;
 }
-
 .top-navbar .user-info {
     color: #348FFF;
     font-size: 1.2rem;
@@ -39,18 +49,17 @@ body {
     font-family: 'Source Sans Pro', sans-serif;
 }
 
-
 #sidebar {
-    width: 250px;
+    width: var(--sidebar-width);
     background-color: #348FFF;
-    height: 100vh;
+    height: calc(100vh - var(--top-navbar-height)); /* Ocupa el alto restante después de la navbar */
     position: fixed;
-    top: 5.9rem; /* Sidebar empieza 5.9rem debajo del top */
+    top: var(--top-navbar-height); /* Empieza justo debajo de la navbar */
     left: 0;
     padding: 1rem 0;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
-    z-index: 10;
+    z-index: 1000;
 }
 
 #sidebar .nav-item .nav-link {
@@ -62,19 +71,15 @@ body {
     transition: background-color 0.3s ease;
     font-weight: bold;
 }
-
 #sidebar .nav-item .nav-link:hover {
     background-color: #ffffff;
     color:#348FFF;
-
 }
-
 #sidebar .nav-item .nav-link i {
     margin-right: 10px;
     width: 20px;
     text-align: center;
 }
-
 #sidebar .nav-item:first-child .nav-link {
     background-color: transparent;
     color: white;
@@ -85,45 +90,110 @@ body {
     margin-bottom: 0.5rem;
     cursor: default;
 }
-
 #sidebar .nav-item:first-child .nav-link:hover {
     background-color: transparent;
 }
 
-
+/* Contenido principal que ocupará el espacio restante horizontal y verticalmente */
 .main-content {
-    margin-left: 250px;
-    padding: 20px;
-    width: calc(100% - 250px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    /* **ÚNICA MODIFICACIÓN AQUÍ:** Ajuste del margen superior para despegar de la navbar */
-    margin-top: 5.9rem; /* Agrega espacio superior igual al 'top' del sidebar */
-    min-height: calc(100vh - 5.9rem); /* Ajusta la altura mínima para considerar el margen superior */
-    box-sizing: border-box;
-    background-color: #ffffff;
-    position: relative;
-    z-index: 1;
+    margin-left: var(--sidebar-width); /* Desplaza el contenido a la derecha de la sidebar */
+    width: calc(100% - var(--sidebar-width)); /* Ocupa el ancho restante */
+    height: calc(100vh - var(--top-navbar-height)); /* Ocupa el alto restante después de la navbar */
+    position: relative; /* Contenedor para la imagen de fondo */
+    top: var(--top-navbar-height); /* Ajusta su posición inicial */
+    overflow: hidden; /* Oculta cualquier desbordamiento para el fondo */
+    box-sizing: border-box; /* Incluye padding en el cálculo del tamaño */
+    padding: 0; /* Eliminamos el padding aquí para que el fondo ocupe todo */
+    background-color: transparent; /* Aseguramos que no tenga un color de fondo propio */
 }
 
-.welcome-img {
-    position: fixed;
-    top: 4rem;
+/* La imagen de fondo que ocupa TODO el espacio detrás del contenido principal */
+.home-background {
+    background-image: url('../images/fondo1.jpg'); /* Ruta relativa a public/css/ */
+    background-size: cover; /* La imagen cubrirá todo el contenedor */
+    background-position: center; /* Centra la imagen */
+    background-repeat: no-repeat; /* Evita que la imagen se repita */
+    position: absolute; /* Permite que ocupe todo el espacio del main-content */
+    top: 0;
     left: 0;
     width: 100%;
-    height: calc(100vh - 4rem);
-    object-fit: cover;
-    z-index: 0;
+    height: 100%;
+    z-index: 0; /* Colócalo detrás de TODO el contenido */
 }
 
+/* Este row contendrá el welcome-message y el notification-panel-col */
+.main-content .row {
+    height: 100%; /* Asegura que el row ocupe el alto completo del main-content */
+    position: relative;
+    z-index: 1; /* Estará por encima de la imagen de fondo */
+    margin-left: 0; /* Eliminar margen de bootstrap por defecto */
+    margin-right: 0; /* Eliminar margen de bootstrap por defecto */
+    padding: 20px; /* Padding para el contenido dentro del row */
+    box-sizing: border-box;
+}
+
+/* Estilos para el mensaje de bienvenida y su contenedor */
+.welcome-message {
+    background-color: rgba(0, 0, 0, 0.4); /* Fondo semitransparente para el texto */
+    padding: 30px; /* Más padding para que el texto respire */
+    border-radius: 8px;
+    color: white; /* Color de texto blanco para contraste */
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%; /* Ocupa todo el alto de su columna */
+}
+.welcome-message h3, .welcome-message p {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Sombra de texto fuerte */
+}
+
+/* Estilos para el panel de notificaciones */
+.notification-panel-col {
+    padding-left: 20px; /* Margen a la izquierda del panel */
+    padding-right: 20px; /* Margen a la derecha del panel */
+    height: 100%; /* Asegura que la columna ocupe todo el alto */
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.notification-card {
+    background-color: rgba(255, 255, 255, 0.9); /* Fondo ligeramente transparente para la tarjeta */
+    border: none;
+    border-radius: 10px; /* Bordes más suaves */
+    flex-grow: 1; /* Permite que la tarjeta se estire y ocupe el alto de la columna */
+    display: flex;
+    flex-direction: column; /* Contenido de la tarjeta en columna */
+    overflow: hidden; /* Asegura que el scroll interno funcione si el contenido es mucho */
+}
+
+.notification-card .card-body {
+    flex-grow: 1; /* El body de la tarjeta se estira */
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.notification-card .list-group {
+    flex-grow: 1; /* La lista de mensajes/actividades se estira */
+    overflow-y: auto; /* Permite scroll solo en las listas si el contenido es demasiado */
+    margin-bottom: 15px; /* Espacio antes del botón o hr */
+}
+
+.notification-card .list-group-item {
+    background-color: transparent; /* Fondo transparente para los ítems de lista */
+    border-color: rgba(0,0,0,0.05); /* Borde sutil */
+}
+
+/* Otros estilos generales (mantener) */
 .logout-container {
     position: fixed;
     bottom: 20px;
     left: 20px;
     z-index: 11;
 }
-
 .logout-btn {
     background-color: #cf1b1b;
     color: white;
@@ -133,11 +203,9 @@ body {
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
-
 .logout-btn:hover {
     background-color: #f7614d;
 }
-
 .dashboard-header {
     display: flex;
     justify-content: space-between;
@@ -147,25 +215,21 @@ body {
     padding-bottom: 15px;
     width: 100%;
 }
-
 .dashboard-header h1 {
     font-size: 2rem;
     font-weight: bold;
     color: #343a40;
     margin: 0;
 }
-
 .dashboard-header .btn-toolbar {
     display: flex;
     gap: 10px;
 }
-
 .dashboard-header .btn {
     padding: 8px 16px;
     border-radius: 0.25rem;
     font-size: 14px;
 }
-
 .dashboard-header .btn-group .btn {
     margin: 0;
 }
@@ -173,17 +237,14 @@ body {
     border-radius: 0.5rem;
     font-family: 'Arial', sans-serif;
 }
-
 .swal2-title {
     color: #348FFF;
     font-size: 1.5rem;
     font-weight: bold;
 }
-
 .swal2-content {
     color: #495057;
 }
-
 .swal2-confirm {
     background-color: #348FFF !important;
     color: white !important;
@@ -193,7 +254,70 @@ body {
     cursor: pointer !important;
     transition: background-color 0.2s ease !important;
 }
-
 .swal2-confirm:hover {
     background-color: #2869c4 !important;
+}
+
+/* Estilos de notificaciones de Bootstrap */
+.card-header.bg-info {
+    background-color: #17a2b8 !important; /* Azul claro de Bootstrap info */
+}
+.card-header.bg-success {
+    background-color: #28a745 !important; /* Verde de Bootstrap success */
+}
+.list-group-item strong {
+    color: #343a40; /* Color oscuro para el nombre de usuario */
+}
+.list-group-item a {
+    color: #007bff; /* Color del enlace para el mensaje de chat */
+    font-weight: 500;
+}
+
+/* Media Queries para Responsive */
+@media (max-width: 991.98px) { /* Para tablets y móviles */
+    .top-navbar {
+        position: relative; /* Vuelve a relativo para no ocupar espacio fijo en móvil */
+        height: auto;
+    }
+    #sidebar {
+        width: 100%;
+        height: auto;
+        position: relative; /* Se vuelve parte del flujo normal en móvil */
+        top: 0;
+        padding-top: 0;
+        box-shadow: none;
+    }
+    .main-content {
+        margin-left: 0; /* No hay margen si la sidebar está arriba */
+        width: 100%;
+        height: auto; /* Deja que el contenido determine la altura */
+        position: relative; /* Elimina posición absoluta para que se adapte */
+        top: 0; /* Elimina top fijo */
+        padding: 0; /* Restaura padding si es necesario */
+    }
+    .container-fluid.h-100 {
+        height: auto;
+        padding-top: 0;
+        display: block; /* Vuelve a block para apilamiento normal */
+    }
+    .main-content .row {
+        height: auto;
+        flex-direction: column; /* Apila las columnas una encima de otra */
+    }
+    .main-content .col-lg-6,
+    .notification-panel-col {
+        width: 100%; /* Las columnas ocupan todo el ancho en móvil */
+        padding: 15px; /* Padding para el contenido de las columnas en móvil */
+    }
+    .notification-card {
+        height: auto; /* La tarjeta se ajusta a su contenido en móvil */
+    }
+    .home-background {
+        position: relative; /* Quita el absolute en móvil para que fluya */
+        height: 250px; /* Altura fija para el fondo en móvil, o auto */
+    }
+    .welcome-message {
+        height: auto; /* Ajusta la altura del mensaje de bienvenida */
+        display: block;
+    }
 }

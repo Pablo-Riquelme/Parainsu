@@ -36,3 +36,11 @@ window.Echo = new Echo({
 
 // Asegúrate de que tu modelo App\Models\User use el trait Laravel\Sanctum\HasApiTokens;
 // ya que Echo utiliza Laravel Sanctum para autenticar los canales privados.
+
+/**
+ * Echo exposes an expressive API for subscribing to channels and listening
+ * for events that are broadcast by Laravel. Echo and event broadcasting
+ * allow your team to quickly build robust real-time web applications.
+ */
+
+import './echo';

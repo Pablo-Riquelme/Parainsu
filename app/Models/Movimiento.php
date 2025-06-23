@@ -9,50 +9,75 @@ class Movimiento extends Model
 {
     use HasFactory;
 
-    // Campos que pueden ser asignados masivamente
+    protected $table = 'movimientos'; // Asegúrate de que el nombre de la tabla sea correcto si no es 'movimientos'
+
     protected $fillable = [
+        'user_id',
         'tipo',
         'cantidad',
         'descripcion',
-        'user_id',
         'insumo_medico_id',
         'equipo_ti_id',
-        'tabla_afectada',   // <-- ¡Añadido!
-        'id_afectada',      // <-- ¡Añadido!
-        'datos_antes',      // <-- ¡Añadido!
-        'datos_despues',    // <-- ¡Añadido!
-        'ip_address',       // <-- ¡Añadido!
+        'tabla_afectada',
+        'id_afectada',
+        'ip_address',
+        'datos_antes',
+        'datos_despues',
     ];
 
-    // Castear atributos a tipos de PHP (muy importante para JSON)
     protected $casts = [
-        'datos_antes' => 'array',   // Castear a array para que Laravel decodifique JSON automáticamente
-        'datos_despues' => 'array', // Castear a array para que Laravel decodifique JSON automáticamente
-        'created_at' => 'datetime', // Opcional, pero útil para trabajar con fechas
-        'updated_at' => 'datetime', // Opcional, pero útil para trabajar con fechas
+        'datos_antes' => 'array',
+        'datos_despues' => 'array',
     ];
 
-    /**
-     * Relación: Un movimiento pertenece a un Usuario.
-     */
+
+    // Relación con el usuario que realizó el movimiento
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Relación: Un movimiento puede pertenecer a un InsumoMedico.
-     */
+    // Relación con InsumoMedico (puede ser null)
     public function insumoMedico()
     {
-        return $this->belongsTo(InsumoMedico::class, 'insumo_medico_id'); // Específicamos la FK para claridad
+        return $this->belongsTo(InsumoMedico::class);
+    }
+
+    // Relación con EquipoTi (puede ser null)
+    public function equipoTi()
+    {
+        return $this->belongsTo(EquipoTi::class);
     }
 
     /**
-     * Relación: Un movimiento puede pertenecer a un EquipoTi.
+     * Método para obtener una descripción legible del movimiento.
+     * Útil para mostrar en el log de actividades.
+     * @return string
      */
-    public function equipoTi()
+    public function getSummaryAttribute()
     {
-        return $this->belongsTo(EquipoTI::class, 'equipo_ti_id'); // Específicamos la FK para claridad
+        $userName = $this->user ? $this->user->name : 'Usuario Desconocido';
+        $itemType = $this->tabla_afectada === 'insumos_medicos' ? 'insumo médico' : ($this->tabla_afectada === 'equipos_ti' ? 'equipo TI' : 'item');
+        $itemName = '';
+
+        if ($this->insumoMedico) {
+            $itemName = $this->insumoMedico->nombre; // Asume que InsumoMedico tiene un campo 'nombre'
+        } elseif ($this->equipoTi) {
+            $itemName = $this->equipoTi->nombre_equipo; // Asume que EquipoTi tiene un campo 'nombre_equipo'
+        }
+
+        switch ($this->tipo) {
+            case 'entrada':
+                return "{$userName} registró una entrada de {$this->cantidad} unidad(es) de {$itemType}: {$itemName}.";
+            case 'salida':
+                return "{$userName} registró una salida de {$this->cantidad} unidad(es) de {$itemType}: {$itemName}.";
+            // Puedes añadir más tipos de movimientos aquí (ej. 'edicion', 'baja', 'creacion')
+            default:
+                // Si el tipo no es 'entrada' o 'salida', la descripción del movimiento puede ser más relevante
+                if ($this->descripcion) {
+                     return "{$userName} realizó un movimiento de tipo '{$this->tipo}' en {$itemType} '{$itemName}': {$this->descripcion}.";
+                }
+                return "{$userName} realizó un movimiento de tipo '{$this->tipo}' en {$itemType} '{$itemName}'.";
+        }
     }
 }

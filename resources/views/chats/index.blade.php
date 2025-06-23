@@ -6,11 +6,16 @@
 
 @section('content')
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2><i class="fas fa-comments"></i> Mis Mensajes</h2>
-        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newChatModal">
-            <i class="fas fa-plus-circle"></i> Iniciar Nuevo Chat
-        </button>
+    {{-- Nuevo Card para el título y el botón --}}
+    <div class="card mb-3 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2 class="card-title mb-0 text-white">
+                <i class="fas fa-comments"></i> Mis Mensajes
+            </h2>
+            <button class="btn btn-light btn-sm text-primary" data-bs-toggle="modal" data-bs-target="#newChatModal">
+                <i class="fas fa-plus-circle"></i> Iniciar Nuevo Chat
+            </button>
+        </div>
     </div>
 
     @forelse ($chats as $chat)
@@ -39,7 +44,6 @@
     </a>
 </div>
 
-<!-- Modal para crear un nuevo chat -->
 <div class="modal fade" id="newChatModal" tabindex="-1" aria-labelledby="newChatModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content shadow">
@@ -230,4 +234,32 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+@endpush
+
+@push('styles')
+<style>
+    /* Ajuste para mover el modal de "Iniciar Nuevo Chat" más abajo */
+    #newChatModal .modal-dialog {
+        /*
+         * Bootstrap usa flexbox para centrar el modal. Para moverlo hacia abajo
+         * sin romper el centrado horizontal, ajustamos 'top' y 'transform'.
+         * 'translate(-50%, 0)' mantiene el centrado horizontal.
+         */
+        top: 80px; /* Ajusta este valor (ej: 80px, 100px) para moverlo más abajo */
+        transform: translate(-50%, 0); /* Mantiene el centrado horizontal y quita el vertical */
+        margin-top: 0; /* Reinicia el margin-top por si Bootstrap aplica alguno */
+        left: 50%; /* Ayuda a centrar horizontalmente */
+        position: absolute; /* Para que 'top' y 'left' funcionen correctamente */
+    }
+
+    /* Opcional: Ajustar el ancho máximo del modal si lo deseas */
+    #newChatModal .modal-dialog {
+        max-width: 500px; /* Ejemplo: Hazlo un poco más estrecho si lo necesitas */
+    }
+
+    /* Ajuste para el encabezado del título "Mis Mensajes" */
+    .card-header h2.card-title {
+        color: #FFFFFF; /* Asegura que el texto del título sea blanco */
+    }
+</style>
 @endpush
