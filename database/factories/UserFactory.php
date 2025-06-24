@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -29,6 +30,7 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'role_id' => 1, // 
         ];
     }
 
@@ -39,6 +41,30 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * Define the user as an admin_ti.
+     * Asigna el role_id correspondiente al rol 'admin_ti'.
+     */
+    public function adminTi(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            // NECESITARÁS SABER CUÁL ES EL ID REAL DEL ROL 'admin_ti' en tu tabla de roles
+            // Por ejemplo, si 'admin_ti' es el ID 1
+            'role_id' => 1, // <--- AJUSTA ESTE ID al ID real de tu rol 'admin_ti'
+        ]);
+    }
+
+    /**
+     * Define the user as bodega.
+     * Asigna el role_id correspondiente al rol 'bodega'.
+     */
+    public function bodega(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role_id' => 2, // <--- AJUSTA ESTE ID al ID real de tu rol 'bodega'
         ]);
     }
 }
