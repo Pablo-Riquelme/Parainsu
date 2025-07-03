@@ -9,11 +9,77 @@
     <div class="row h-100 gx-4"> {{-- Agregamos gx-4 para un gap horizontal entre columnas, si Bootstrap lo soporta. O usa mt-lg-0 y ms-lg-auto en las columnas --}}
         {{-- Columna principal del dashboard (sin background-image aquí) --}}
         <div class="col-lg-8 d-flex flex-column home-main-content-col"> {{-- CAMBIADO a col-lg-8 --}}
-            @yield('dashboard_content')
+            @yield('dashboard_content') {{-- Si tienes contenido inyectado aquí desde otras vistas --}}
+
             <div class="welcome-message text-center mb-4 flex-grow-1 d-flex flex-column justify-content-center align-items-center">
                 <h3 class="mt-3 text-white text-shadow-strong">¡Bienvenido a tu panel!</h3>
                 <p class="text-white text-shadow-strong">Aquí encontrarás información relevante y notificaciones.</p>
             </div>
+
+            {{-- AHORA LA SECCIÓN DE MANTENIMIENTOS VA DIRECTAMENTE AQUÍ --}}
+            @if(auth()->user()->isAdmin() || auth()->user()->isUser()) {{-- Usar los métodos del User model --}}
+            <div class="card mt-4 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-clipboard-list"></i> Mantenimientos Pendientes/En Progreso</h4>
+                </div>
+                <div class="card-body">
+                    @if($mantenimientosPendientes->isEmpty())
+                        <div class="alert alert-info" role="alert">
+                            No hay mantenimientos pendientes o en progreso en este momento.
+                        </div>
+                    @else
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped table-sm">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Equipo</th>
+                                        <th>Tipo</th>
+                                        <th>Fecha Inicio</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($mantenimientosPendientes as $mantenimiento)
+                                    <tr>
+                                        <td>{{ $mantenimiento->equipoTi->nombre_equipo ?? 'N/A' }}</td>
+                                        <td>{{ $mantenimiento->tipo }}</td>
+                                        <td>{{ $mantenimiento->fecha_inicio->format('d/m/Y H:i') }}</td>
+                                        <td>
+                                            <span class="badge {{
+                                                $mantenimiento->estado == 'pendiente' ? 'bg-warning' :
+                                                ($mantenimiento->estado == 'en_progreso' ? 'bg-info' : '')
+                                            }}">
+                                                {{ ucfirst($mantenimiento->estado) }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ route('mantenimientos.show', $mantenimiento->id) }}" class="btn btn-info btn-sm" title="Ver Detalles">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            {{-- Solo permitir editar/eliminar si el usuario es admin_ti --}}
+                                            @if(auth()->user()->isAdmin()) {{-- Usar isAdminTi() --}}
+                                            <a href="{{ route('mantenimientos.edit', $mantenimiento->id) }}" class="btn btn-warning btn-sm" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-end mt-3">
+                            <a href="{{ route('mantenimientos.index') }}" class="btn btn-outline-primary btn-sm">
+                                Ver todos los mantenimientos <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    @endif
+                </div>
+            </div>
+            @endif
+            {{-- FIN DE LA SECCIÓN DE MANTENIMIENTOS --}}
+
         </div>
 
         {{-- Panel de Notificaciones (Columna lateral) --}}
@@ -65,6 +131,7 @@
     </div>
 @endsection
 
+{{-- Los scripts y estilos push están correctos aquí --}}
 @push('scripts')
 {{-- JavaScript específico para el home --}}
 @endpush

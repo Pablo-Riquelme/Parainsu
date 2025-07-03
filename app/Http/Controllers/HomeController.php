@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Chat; // Asegúrate de importar tu modelo Chat
-use App\Models\Message; // Asegúrate de importar tu modelo Message
+use App\Models\Chat; 
+use App\Models\Message;
+use App\Models\Mantenimiento; 
 use App\Models\Movimiento; // ¡Importa tu modelo Movimiento!
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon; // Para formateo de fechas
@@ -45,6 +46,16 @@ class HomeController extends Controller
                                ->take(5) // Obtiene los 5 movimientos más recientes
                                ->get();
 
-        return view('home', compact('latestMessages', 'latestChanges'));
+        $mantenimientosPendientes = collect(); 
+
+        // Solo cargar mantenimientos pendientes si el usuario es admin_ti o usuario normal
+        if ($user && ($user->isAdmin() || $user->isUser())) { 
+            $mantenimientosPendientes = Mantenimiento::whereIn('estado', ['pendiente', 'en_progreso'])
+                                                    ->with('equipoTi')
+                                                    ->orderBy('fecha_inicio', 'asc')
+                                                    ->get();
+        }
+
+        return view('home', compact('latestMessages', 'latestChanges', 'mantenimientosPendientes'));
     }
 }
