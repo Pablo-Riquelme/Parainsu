@@ -139,7 +139,7 @@
         </div>
 
         {{-- Panel de Notificaciones (Columna lateral) --}}
-        <div class="col-lg-4 d-flex flex-column notification-panel-col"> {{-- CAMBIADO a col-lg-4 para más delgadez --}}
+        <div class="col-lg-4 d-flex flex-column notification-panel-col"> 
             <div class="card shadow-sm mb-4 flex-grow-1 notification-card">
                 <div class="card-header bg-info text-white">
                     <h5 class="mb-0"><i class="fas fa-bell"></i> Notificaciones Recientes</h5>
@@ -172,7 +172,7 @@
                         @forelse($latestChanges as $movimiento)
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <div>
-                                    {{ Str::limit($movimiento->summary, 40, '...') }} {{-- Ajusta el límite de caracteres --}}
+                                    {{ Str::limit($movimiento->summary, 40, '...') }} 
                                     <small class="d-block text-muted">{{ \Carbon\Carbon::parse($movimiento->created_at)->setTimezone('America/Santiago')->diffForHumans() }}</small>
                                 </div>
                             </li>
@@ -188,7 +188,7 @@
 @endsection
 
 @push('scripts')
-{{-- JavaScript específico para el home --}}
+
 @endpush
 
 @push('styles')

@@ -27,9 +27,9 @@
                             <div class="col-12 col-md-12">
                                 <label for="nombre_filtro" class="form-label">Buscar por dato:</label>
                                 <input type="text" name="nombre_filtro" id="nombre_filtro"
-                                       class="form-control"
-                                       placeholder="Dato relacionado con el insumo médico"
-                                       value="{{ request('nombre_filtro') }}">
+                                        class="form-control"
+                                        placeholder="Dato relacionado con el insumo médico"
+                                        value="{{ request('nombre_filtro') }}">
                             </div>
                         </div>
                     </div>
@@ -93,7 +93,7 @@
                                 <form action="{{ route('insumos-medicos.destroy', $insumo) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-delete delete-alert"> {{-- Añadido delete-alert para SweetAlert2 --}}
+                                    <button type="submit" class="btn btn-delete delete-alert">
                                         <i class="fas fa-trash-alt"></i> Eliminar
                                     </button>
                                 </form>
@@ -123,9 +123,9 @@
 
 {{-- MODAL DE EXPORTACIÓN (fuera del card principal, pero dentro del container) --}}
 <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered"> {{-- Añadido modal-dialog-centered para centrar verticalmente --}}
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white"> {{-- Estilo para el header del modal --}}
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="exportModalLabel"><i class="fas fa-download"></i> Exportar Datos</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -134,15 +134,15 @@
             </div>
             <div class="modal-footer d-flex justify-content-center">
                 {{-- Botón para exportar a Excel --}}
-                <a href="{{ route('insumos-medicos.export.excel', request()->query()) }}" class="btn btn-success">
+                <a href="#" class="btn btn-success export-action-btn" data-type="excel" data-href="{{ route('insumos-medicos.export.excel', request()->query()) }}">
                     <i class="fas fa-file-excel"></i> Exportar a Excel
                 </a>
                 {{-- Botón para exportar a PDF --}}
-                <a href="{{ route('insumos-medicos.export.pdf', request()->query()) }}" class="btn btn-danger">
+                <a href="#" class="btn btn-danger export-action-btn" data-type="pdf" data-href="{{ route('insumos-medicos.export.pdf', request()->query()) }}">
                     <i class="fas fa-file-pdf"></i> Exportar a PDF
                 </a>
-                {{-- Botón para exportar como Imagen (se manejará con JavaScript) --}}
-                <button type="button" class="btn btn-warning" id="exportImageBtn">
+                {{-- Botón para exportar como Imagen --}}
+                <button type="button" class="btn btn-warning export-action-btn" data-type="image" id="exportImageBtn">
                     <i class="fas fa-file-image"></i> Exportar a Imagen
                 </button>
             </div>
@@ -154,11 +154,31 @@
 
 @push('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+{{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> --}}
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // SweetAlert2 para confirmación de eliminación (si ya lo tienes, solo verifica la clase)
+    // Función para limpiar todos los modal-backdrops y la clase 'modal-open' del body
+    function cleanAllModalBackdrops() {
+        console.log('Ejecutando cleanAllModalBackdrops...');
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => {
+            backdrop.remove();
+            console.log('modal-backdrop eliminado.');
+        });
+        // Asegurarse de que 'modal-open' se elimine del body si no hay modales activos
+        if (document.querySelectorAll('.modal.show').length === 0 && document.body.classList.contains('modal-open')) {
+            document.body.classList.remove('modal-open');
+            console.log('Clase modal-open eliminada del body.');
+        }
+        document.body.style.overflow = ''; // Restaurar el scroll del body
+        console.log('Scroll del body restaurado.');
+    }
+
+    // *** CRÍTICO: Ejecutar al cargar la página para limpiar backdrops de sesiones anteriores ***
+    cleanAllModalBackdrops();
+
+    // SweetAlert2 para confirmación de eliminación
     document.querySelectorAll('.delete-alert').forEach(button => {
         button.addEventListener('click', function (e) {
             e.preventDefault();
@@ -179,69 +199,135 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Lógica para exportar como IMAGEN (usando html2canvas)
-    const exportImageBtn = document.getElementById('exportImageBtn');
-    if (exportImageBtn) {
-        exportImageBtn.addEventListener('click', function() {
-            // Ocultar elementos no deseados antes de la captura (ej. acciones de la tabla, botones de paginación)
-            const actionsColumn = document.querySelectorAll('.actions-buttons');
-            actionsColumn.forEach(col => col.style.display = 'none');
+    // Lógica para cerrar el modal antes de la acción de exportación
+    const exportModalElement = document.getElementById('exportModal');
+    let exportModal;
 
-            const pagination = document.querySelector('.pagination-container');
-            if (pagination) pagination.style.display = 'none';
+    // Intentar obtener la instancia del modal de Bootstrap.
+    // Es CRÍTICO que 'bootstrap' esté definido globalmente.
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        exportModal = new bootstrap.Modal(exportModalElement);
+        console.log('Instancia de Bootstrap Modal creada con éxito para #exportModal.');
+    } else {
+        console.error('ERROR: Bootstrap 5 JS (window.bootstrap.Modal) NO está disponible. El modal no funcionará correctamente.');
+        // Si Bootstrap no está disponible, el modal no se podrá controlar programáticamente.
+        // Aquí podrías deshabilitar los botones de exportación o mostrar un mensaje al usuario.
+        // Por ahora, el error en consola es suficiente para depuración.
+    }
 
-            const addInsumoBtn = document.querySelector('a[href="{{ route('insumos-medicos.create') }}"]');
-            if (addInsumoBtn) addInsumoBtn.style.display = 'none';
+    document.querySelectorAll('.export-action-btn').forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.preventDefault(); // Prevenir el comportamiento por defecto del enlace/botón
+            const dataType = this.dataset.type;
+            const downloadUrl = this.dataset.href;
 
-            const exportBtn = document.querySelector('.d-flex.justify-content-end.mb-3 .btn-info');
-            if (exportBtn) exportBtn.style.display = 'none';
+            // Solo intentar ocultar el modal si la instancia existe
+            if (exportModal) {
+                exportModal.hide();
 
-            const returnHomeBtn = document.querySelector('.button-container');
-            if (returnHomeBtn) returnHomeBtn.style.display = 'none';
+                // Escuchar el evento 'hidden.bs.modal' para asegurar que el modal y el backdrop se han ocultado
+                exportModalElement.addEventListener('hidden.bs.modal', function handler() {
+                    // Eliminar el listener para que no se ejecute múltiples veces
+                    exportModalElement.removeEventListener('hidden.bs.modal', handler);
 
-            // Seleccionar el contenido de la tabla para capturar
-            const tableToCapture = document.querySelector('.card-body .table-responsive'); // Captura solo la tabla y su responsividad
+                    if (dataType === 'excel' || dataType === 'pdf') {
+                        // Usar un iframe oculto para la descarga
+                        const iframe = document.createElement('iframe');
+                        iframe.style.display = 'none'; // Hacerlo invisible
+                        iframe.src = downloadUrl;
+                        document.body.appendChild(iframe);
 
-            if (tableToCapture) {
-                html2canvas(tableToCapture, {
-                    scale: 2, // Aumenta la resolución para mejor calidad
-                    useCORS: true // Importante si tienes imágenes de fuentes externas
-                }).then(canvas => {
-                    const imgData = canvas.toDataURL('image/png');
-                    const link = document.createElement('a');
-                    link.download = 'insumos_medicos_tabla.png';
-                    link.href = imgData;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
+                        // Opcional: remover el iframe después de un tiempo para limpiar el DOM
+                        setTimeout(() => {
+                            document.body.removeChild(iframe);
+                        }, 5000); // Removerlo después de 5 segundos
 
-                    // Restaurar la visibilidad de los elementos ocultos
-                    actionsColumn.forEach(col => col.style.display = ''); // o 'table-cell' si es td
-                    if (pagination) pagination.style.display = '';
-                    if (addInsumoBtn) addInsumoBtn.style.display = '';
-                    if (exportBtn) exportBtn.style.display = '';
-                    if (returnHomeBtn) returnHomeBtn.style.display = '';
-
-                    // Cerrar el modal después de la exportación
-                    const exportModal = bootstrap.Modal.getInstance(document.getElementById('exportModal'));
-                    if (exportModal) {
-                        exportModal.hide();
+                        Swal.fire('Exportado', `Los insumos se están exportando a ${dataType.toUpperCase()}.`, 'success');
+                    } else if (dataType === 'image') {
+                        handleImageExport(); // Llama a la función para exportar imagen
                     }
-                    Swal.fire('Exportado', 'Los insumos se han exportado como imagen (PNG).', 'success');
-                }).catch(error => {
-                    console.error('Error al generar la imagen:', error);
-                    Swal.fire('Error', 'No se pudo exportar como imagen.', 'error');
-                    // Asegurarse de restaurar visibilidad incluso en error
-                    actionsColumn.forEach(col => col.style.display = '');
-                    if (pagination) pagination.style.display = '';
-                    if (addInsumoBtn) addInsumoBtn.style.display = '';
-                    if (exportBtn) exportBtn.style.display = '';
-                    if (returnHomeBtn) returnHomeBtn.style.display = '';
                 });
             } else {
-                Swal.fire('Error', 'No se encontró la tabla para exportar.', 'error');
+                // Si exportModal no se pudo inicializar, aún podemos intentar la descarga directa
+                // Esto es un fallback, pero el problema principal es la falta de Bootstrap JS
+                if (dataType === 'excel' || dataType === 'pdf') {
+                    window.location.href = downloadUrl;
+                    Swal.fire('Error', 'No se pudo controlar el modal, pero la descarga debería haber iniciado.', 'warning');
+                } else if (dataType === 'image') {
+                    handleImageExport();
+                }
             }
         });
+    });
+
+    // Listener para cuando el modal se abre, para verificar el estado
+    if (exportModalElement) { // Asegurarse de que el elemento exista
+        exportModalElement.addEventListener('shown.bs.modal', function () {
+            console.log('Modal #exportModal ahora es visible. Verificando estado del body y backdrops.');
+            cleanAllModalBackdrops(); // Una limpieza preventiva al mostrar también
+        });
+    }
+
+    // Función para exportar como IMAGEN (usando html2canvas)
+    function handleImageExport() {
+        // Ocultar elementos no deseados antes de la captura
+        const actionsColumnHeaders = document.querySelectorAll('th:last-child'); // Columna "Acciones" en thead
+        const actionsColumnCells = document.querySelectorAll('.actions-buttons'); // Celdas "Acciones" en tbody
+        actionsColumnHeaders.forEach(th => th.style.display = 'none');
+        actionsColumnCells.forEach(td => td.style.display = 'none');
+
+        const pagination = document.querySelector('.pagination-container');
+        if (pagination) pagination.style.display = 'none';
+
+        const addInsumoBtn = document.querySelector('a[href="{{ route('insumos-medicos.create') }}"]');
+        if (addInsumoBtn) addInsumoBtn.style.display = 'none';
+
+        const exportBtnWrapper = document.querySelector('.d-flex.justify-content-end.mb-3'); // Contenedor del botón "Exportar"
+        if (exportBtnWrapper) exportBtnWrapper.style.display = 'none';
+
+        const returnHomeBtn = document.querySelector('.button-container');
+        if (returnHomeBtn) returnHomeBtn.style.display = 'none';
+
+        const searchForm = document.querySelector('form[action="{{ route('insumos-medicos.index') }}"]');
+        if (searchForm) searchForm.style.display = 'none';
+
+
+        // Seleccionar el contenido de la tabla para capturar
+        const tableToCapture = document.querySelector('.card-body .table-responsive');
+
+        if (tableToCapture) {
+            html2canvas(tableToCapture, {
+                scale: 2, // Aumenta la resolución para mejor calidad
+                useCORS: true, // Importante si tienes imágenes de fuentes externas
+                logging: false // Deshabilita el logging de html2canvas en consola
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.download = 'insumos_medicos_tabla.png';
+                link.href = imgData;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                Swal.fire('Exportado', 'Los insumos se han exportado como imagen (PNG).', 'success');
+
+            }).catch(error => {
+                console.error('Error al generar la imagen:', error);
+                Swal.fire('Error', 'No se pudo exportar como imagen.', 'error');
+            }).finally(() => {
+                // Asegurarse de restaurar la visibilidad de los elementos ocultos
+                actionsColumnHeaders.forEach(th => th.style.display = ''); // Restaurar el display original
+                actionsColumnCells.forEach(td => td.style.display = '');
+
+                if (pagination) pagination.style.display = '';
+                if (addInsumoBtn) addInsumoBtn.style.display = '';
+                if (exportBtnWrapper) exportBtnWrapper.style.display = '';
+                if (returnHomeBtn) returnHomeBtn.style.display = '';
+                if (searchForm) searchForm.style.display = '';
+            });
+        } else {
+            Swal.fire('Error', 'No se encontró la tabla para exportar.', 'error');
+        }
     }
 });
 </script>
@@ -370,6 +456,3 @@ document.addEventListener('DOMContentLoaded', function () {
 
 </style>
 @endpush
-```
----
-
