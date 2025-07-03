@@ -9,7 +9,8 @@
     use App\Http\Controllers\EquipoTIController;
     use App\Http\Controllers\InsumoMedicoController;
     use App\Http\Controllers\MovimientoController;
-    use App\Http\Controllers\ChatController; // Importar ChatController (para index de chats)
+    use App\Http\Controllers\ChatController;
+    use App\Http\Controllers\MantenimientoController;
 
     /*
     |--------------------------------------------------------------------------
@@ -75,6 +76,7 @@
                 'equipos-ti' => 'equipoTI',
             ]);
             Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
+            Route::resource('mantenimientos', MantenimientoController::class);
         });
 
         // =========================================================================

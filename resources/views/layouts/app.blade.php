@@ -80,6 +80,13 @@
                                 </li>
                             @endif
 
+                            @if(auth()->user()->isAdmin())
+                                <li class="nav-item">
+                                    <a class="nav-link {{ Request::routeIs('mantenimientos.*') ? 'active' : '' }}" href="{{ route('mantenimientos.index') }}">
+                                        <i class="fas fa-tools"></i> Gestión de Mantenimientos
+                                    </a>
+                                </li>
+                            @endif
                             {{-- Ver Movimientos - Visible para todos los roles autenticados --}}
                             <li class="nav-item">
                                 <a class="nav-link {{ Request::routeIs('movimientos.index') ? 'active' : '' }}" href="{{ route('movimientos.index') }}">

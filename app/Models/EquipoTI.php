@@ -41,4 +41,8 @@ class EquipoTI extends Model
     {
         return $this->hasMany(Movimiento::class, 'equipo_ti_id');
     }
+    public function mantenimientos()
+    {
+        return $this->hasMany(Mantenimiento::class, 'equipo_ti_id');
+    }
 }
