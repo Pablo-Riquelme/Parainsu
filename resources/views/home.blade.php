@@ -82,7 +82,7 @@
             {{-- Fin de Sección: Mantenimientos Pendientes --}}
 
             {{-- NUEVA SECCIÓN: Insumos con Bajo Stock --}}
-            @if(auth()->user()->isAdmin() || auth()->user()->isUser()) {{-- Usar isAdmin() y isUser() --}}
+            @if(auth()->user()->isAdmin() || auth()->user()->isBodega() || auth()->user()->isUser()) {{-- Usar isAdmin() y isUser() --}}
             <div class="card mt-4 shadow-sm dashboard-info-card"> {{-- Añadida clase dashboard-info-card --}}
                 <div class="card-header bg-danger text-white">
                     <h4 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Insumos con Bajo Stock</h4>

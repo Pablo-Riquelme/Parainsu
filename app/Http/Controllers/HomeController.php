@@ -57,8 +57,8 @@ class HomeController extends Controller
                                                     ->orderBy('fecha_inicio', 'asc')
                                                     ->get();
         }
-        // Lógica para insumos con bajo stock (visibles para admin y user)
-        if ($user && ($user->isAdmin() || $user->isUser())) { // Usar isAdmin() y isUser()
+        // Lógica para insumos con bajo stock (visibles para admin y bodega)
+        if ($user && ($user->isAdmin() || $user->isBodega() || $user->isUser())) { // Usar isAdmin() y isUser()
             $insumosBajoStock = InsumoMedico::whereColumn('stock', '<=', 'stock_minimo')
                                             ->orderBy('nombre', 'asc') // Ordenar por nombre del insumo
                                             ->get();
