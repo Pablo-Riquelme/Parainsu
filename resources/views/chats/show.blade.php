@@ -66,6 +66,84 @@ data-api-token="{{ Auth::user() ? Auth::user()->createToken('global-chat-token')
 @endsection
 
 @push('scripts')
+{{-- Scripts para manejar el envío de mensajes y la recarga --}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const chatId = document.getElementById('chat-id').value;
+    const messageInput = document.getElementById('message-input');
+    const sendMessageBtn = document.getElementById('send-message-btn');
+    const chatBox = document.querySelector('.chat-box'); // Para scroll al final
+
+    // Función para desplazarse al final del chat-box
+    function scrollToBottom() {
+        if (chatBox) {
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    }
+
+    // Desplazarse al final cuando la página carga
+    scrollToBottom();
+
+    // Listener para el botón de enviar mensaje
+    if (sendMessageBtn) {
+        sendMessageBtn.addEventListener('click', sendMessage);
+    }
+
+    // Listener para la tecla Enter en el input de mensaje
+    if (messageInput) {
+        messageInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Prevenir el salto de línea en el input
+                sendMessage();
+            }
+        });
+    }
+
+    async function sendMessage() {
+        const messageContent = messageInput.value.trim();
+
+        if (messageContent === '') {
+            return; // No enviar mensajes vacíos
+        }
+
+        // Deshabilitar input y botón para evitar envíos múltiples
+        messageInput.disabled = true;
+        sendMessageBtn.disabled = true;
+        sendMessageBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando...';
+
+        try {
+            const response = await fetch(`/chats/${chatId}/messages`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ contenido: messageContent })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Mensaje enviado:', data);
+                // Si el mensaje se envió con éxito, recargar la página para mostrar el nuevo mensaje
+                window.location.reload();
+            } else {
+                const errorData = await response.json();
+                console.error('Error al enviar mensaje:', errorData);
+                alert('Error al enviar mensaje: ' + (errorData.message || 'Error desconocido'));
+            }
+        } catch (error) {
+            console.error('Error de red al enviar mensaje:', error);
+            alert('Error de conexión. Intenta de nuevo.');
+        } finally {
+            // Re-habilitar los campos y restaurar el botón en caso de error
+            messageInput.disabled = false;
+            sendMessageBtn.disabled = false;
+            sendMessageBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar';
+        }
+    }
+});
+</script>
+
 {{-- El CSS se puede mantener aquí o mover a un archivo CSS externo si prefieres. --}}
 <style>
     .chat-box {
