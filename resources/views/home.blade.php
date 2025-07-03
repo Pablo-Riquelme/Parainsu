@@ -11,24 +11,25 @@
         <div class="col-lg-8 d-flex flex-column home-main-content-col"> {{-- CAMBIADO a col-lg-8 --}}
             @yield('dashboard_content') {{-- Si tienes contenido inyectado aquí desde otras vistas --}}
 
-            <div class="welcome-message text-center mb-4 flex-grow-1 d-flex flex-column justify-content-center align-items-center">
+            {{-- TARJETA DE BIENVENIDA: Ahora será un rectángulo horizontal --}}
+            <div class="welcome-message text-center mb-4 d-flex flex-column justify-content-center align-items-center">
                 <h3 class="mt-3 text-white text-shadow-strong">¡Bienvenido a tu panel!</h3>
                 <p class="text-white text-shadow-strong">Aquí encontrarás información relevante y notificaciones.</p>
             </div>
 
-            {{-- AHORA LA SECCIÓN DE MANTENIMIENTOS VA DIRECTAMENTE AQUÍ --}}
-            @if(auth()->user()->isAdmin() || auth()->user()->isUser()) {{-- Usar los métodos del User model --}}
-            <div class="card mt-4 shadow-sm">
+            {{-- Sección: Mantenimientos Pendientes/En Progreso --}}
+            @if(auth()->user()->isAdmin() || auth()->user()->isUser()) {{-- Usar isAdmin() y isUser() --}}
+            <div class="card mt-4 shadow-sm dashboard-info-card"> {{-- Añadida clase dashboard-info-card --}}
                 <div class="card-header bg-primary text-white">
                     <h4 class="mb-0"><i class="fas fa-clipboard-list"></i> Mantenimientos Pendientes/En Progreso</h4>
                 </div>
-                <div class="card-body">
+                <div class="card-body d-flex flex-column"> {{-- Añadido d-flex flex-column --}}
                     @if($mantenimientosPendientes->isEmpty())
                         <div class="alert alert-info" role="alert">
                             No hay mantenimientos pendientes o en progreso en este momento.
                         </div>
                     @else
-                        <div class="table-responsive">
+                        <div class="table-responsive flex-grow-1 overflow-y-auto"> {{-- Añadido flex-grow-1 overflow-y-auto --}}
                             <table class="table table-hover table-striped table-sm">
                                 <thead class="bg-light">
                                     <tr>
@@ -57,8 +58,8 @@
                                             <a href="{{ route('mantenimientos.show', $mantenimiento->id) }}" class="btn btn-info btn-sm" title="Ver Detalles">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            {{-- Solo permitir editar/eliminar si el usuario es admin_ti --}}
-                                            @if(auth()->user()->isAdmin()) {{-- Usar isAdminTi() --}}
+                                            {{-- Solo permitir editar/eliminar si el usuario es admin --}}
+                                            @if(auth()->user()->isAdmin())
                                             <a href="{{ route('mantenimientos.edit', $mantenimiento->id) }}" class="btn btn-warning btn-sm" title="Editar">
                                                 <i class="fas fa-edit"></i>
                                             </a>
@@ -78,7 +79,62 @@
                 </div>
             </div>
             @endif
-            {{-- FIN DE LA SECCIÓN DE MANTENIMIENTOS --}}
+            {{-- Fin de Sección: Mantenimientos Pendientes --}}
+
+            {{-- NUEVA SECCIÓN: Insumos con Bajo Stock --}}
+            @if(auth()->user()->isAdmin() || auth()->user()->isUser()) {{-- Usar isAdmin() y isUser() --}}
+            <div class="card mt-4 shadow-sm dashboard-info-card"> {{-- Añadida clase dashboard-info-card --}}
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Insumos con Bajo Stock</h4>
+                </div>
+                <div class="card-body d-flex flex-column"> {{-- Añadido d-flex flex-column --}}
+                    @if($insumosBajoStock->isEmpty())
+                        <div class="alert alert-success" role="alert">
+                            ¡Todos los insumos tienen stock suficiente!
+                        </div>
+                    @else
+                        <div class="table-responsive flex-grow-1 overflow-y-auto"> {{-- Añadido flex-grow-1 overflow-y-auto --}}
+                            <table class="table table-hover table-striped table-sm">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Insumo</th>
+                                        <th>Stock Actual</th>
+                                        <th>Stock Mínimo</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($insumosBajoStock as $insumo)
+                                    <tr>
+                                        <td>{{ $insumo->nombre }}</td>
+                                        <td><span class="badge bg-danger">{{ $insumo->stock }}</span></td>
+                                        <td>{{ $insumo->stock_minimo }}</td>
+                                        <td>
+                                            <a href="{{ route('insumos-medicos.show', $insumo->id) }}" class="btn btn-info btn-sm" title="Ver Detalles">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            {{-- Solo permitir editar si el usuario es admin o bodega --}}
+                                            @if(auth()->user()->isAdmin() || auth()->user()->role_id === 2) {{-- Asumiendo ID 2 para rol 'bodega' --}}
+                                            <a href="{{ route('insumos-medicos.edit', $insumo->id) }}" class="btn btn-warning btn-sm" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-end mt-3">
+                            <a href="{{ route('insumos-medicos.index') }}" class="btn btn-outline-danger btn-sm">
+                                Ver todos los insumos <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    @endif
+                </div>
+            </div>
+            @endif
+            {{-- Fin de Sección: Insumos con Bajo Stock --}}
 
         </div>
 
@@ -131,7 +187,6 @@
     </div>
 @endsection
 
-{{-- Los scripts y estilos push están correctos aquí --}}
 @push('scripts')
 {{-- JavaScript específico para el home --}}
 @endpush
@@ -161,22 +216,24 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        height: 100%;
-        box-sizing: border-box;
+        /* Ajuste para que sea un rectángulo horizontal */
+        height: auto; /* Permitir que el contenido defina la altura mínima */
+        min-height: 150px; /* Altura mínima para un aspecto rectangular */
+        flex-grow: 0; /* No crecerá para ocupar espacio extra */
     }
     .welcome-message h3, .welcome-message p {
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
     }
 
-    /* Estilos para el panel de notificaciones */
+    /* Estilos para el panel de notificaciones (columna lateral) */
     .notification-card {
         background-color: rgba(255, 255, 255, 0.9);
-        border: none; /* Quitamos el borde del .card genérico de custom.css */
+        border: none;
         border-radius: 10px;
-        flex-grow: 1;
+        flex-grow: 1; /* Permitirá que esta tarjeta crezca para ocupar espacio */
         display: flex;
         flex-direction: column;
-        overflow: hidden; /* Asegura que el scroll interno funcione si el contenido es mucho */
+        overflow: hidden;
     }
 
     .notification-card .card-body {
@@ -187,15 +244,41 @@
     }
 
     .notification-card .list-group {
-        flex-grow: 1; /* Permite que las listas se estiren dentro del card-body */
-        overflow-y: auto; /* ¡Asegura el scroll vertical solo para la lista! */
-        margin-bottom: 15px; /* Espacio antes del botón o hr */
+        flex-grow: 1;
+        overflow-y: auto;
+        margin-bottom: 15px;
     }
 
     .notification-card .list-group-item {
         background-color: transparent;
         border-color: rgba(0,0,0,0.05);
     }
+
+    /* Estilos para las nuevas tarjetas de información (Mantenimientos e Insumos) */
+    .dashboard-info-card {
+        background-color: rgba(255, 255, 255, 0.9);
+        border: none;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        /* Ajuste para hacerlas más altas */
+        min-height: 300px; /* Altura mínima para estas tarjetas */
+        flex-grow: 1; /* Permitir que crezcan si hay más contenido */
+    }
+
+    .dashboard-info-card .card-body {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .dashboard-info-card .table-responsive {
+        flex-grow: 1;
+        overflow-y: auto;
+    }
+
 
     /* Estilos de notificaciones de Bootstrap para esta tarjeta */
     .notification-card .card-header.bg-info {
@@ -222,10 +305,12 @@
         }
         .welcome-message {
             height: auto;
-            min-height: 150px;
+            min-height: 120px; /* Ajuste para móviles */
         }
-        .notification-card {
+        .notification-card,
+        .dashboard-info-card {
             height: auto;
+            min-height: 250px; /* Ajuste para móviles */
         }
     }
 </style>

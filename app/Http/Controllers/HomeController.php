@@ -7,6 +7,7 @@ use App\Models\Message;
 use App\Models\Mantenimiento; 
 use App\Models\Movimiento; // ¡Importa tu modelo Movimiento!
 use Illuminate\Support\Facades\Auth;
+use App\Models\InsumoMedico;
 use Illuminate\Support\Carbon; // Para formateo de fechas
 
 class HomeController extends Controller
@@ -47,6 +48,7 @@ class HomeController extends Controller
                                ->get();
 
         $mantenimientosPendientes = collect(); 
+        $insumosBajoStock = collect();
 
         // Solo cargar mantenimientos pendientes si el usuario es admin_ti o usuario normal
         if ($user && ($user->isAdmin() || $user->isUser())) { 
@@ -55,7 +57,13 @@ class HomeController extends Controller
                                                     ->orderBy('fecha_inicio', 'asc')
                                                     ->get();
         }
+        // Lógica para insumos con bajo stock (visibles para admin y user)
+        if ($user && ($user->isAdmin() || $user->isUser())) { // Usar isAdmin() y isUser()
+            $insumosBajoStock = InsumoMedico::whereColumn('stock', '<=', 'stock_minimo')
+                                            ->orderBy('nombre', 'asc') // Ordenar por nombre del insumo
+                                            ->get();
+        }
 
-        return view('home', compact('latestMessages', 'latestChanges', 'mantenimientosPendientes'));
+        return view('home', compact('latestMessages', 'latestChanges', 'mantenimientosPendientes', 'insumosBajoStock'));
     }
 }
