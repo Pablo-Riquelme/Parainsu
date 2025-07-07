@@ -73,12 +73,32 @@ document.addEventListener('DOMContentLoaded', function () {
     const messageInput = document.getElementById('message-input');
     const sendMessageBtn = document.getElementById('send-message-btn');
     const chatBox = document.querySelector('.chat-box'); // Para scroll al final
+    const currentUserId = document.body.dataset.currentUserId; // Obtener el ID del usuario actual
 
     // Función para desplazarse al final del chat-box
     function scrollToBottom() {
         if (chatBox) {
             chatBox.scrollTop = chatBox.scrollHeight;
         }
+    }
+
+    // Función para añadir un mensaje al chatbox
+    function addMessageToChatBox(message, userName, isCurrentUser) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `d-flex ${isCurrentUser ? 'justify-content-end' : 'justify-content-start'} mb-2`;
+        // Formatear la hora localmente (ej. para Chile)
+        const messageTime = new Date(message.created_at).toLocaleString('es-CL', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Santiago' });
+
+        messageDiv.innerHTML = `
+            <div class="message-bubble ${isCurrentUser ? 'bg-primary text-white' : 'bg-secondary text-white'} rounded py-2 px-3 shadow-sm">
+                <div class="small text-opacity-75 mb-1">
+                    ${userName} - ${messageTime}
+                </div>
+                ${message.contenido}
+            </div>
+        `;
+        chatBox.appendChild(messageDiv);
+        scrollToBottom(); // Desplazarse al final después de añadir el mensaje
     }
 
     // Desplazarse al final cuando la página carga
@@ -97,6 +117,26 @@ document.addEventListener('DOMContentLoaded', function () {
                 sendMessage();
             }
         });
+    }
+
+    // Configuración de Laravel Echo para recibir mensajes en tiempo real
+    if (typeof window.Echo !== 'undefined') {
+        console.log('Echo está disponible. Suscribiéndose al canal de chat:', `private-chat.${chatId}`);
+        window.Echo.private(`private-chat.${chatId}`)
+            .listen('MessageSent', (e) => {
+                console.log('--- EVENTO MessageSent RECIBIDO EN FRONTEND ---', e);
+                // Asegurarse de que el mensaje no sea el que acabamos de enviar nosotros mismos
+                // para evitar duplicados si el backend también lo añade al DOM.
+                // En este caso, como lo añadimos nosotros mismos al enviar, solo queremos los de otros usuarios.
+                if (e.message.user_id != currentUserId) {
+                    addMessageToChatBox(e.message, e.user.name, false); // Es un mensaje de otro usuario
+                }
+            })
+            .error((error) => {
+                console.error('Error en el canal de Echo:', error);
+            });
+    } else {
+        console.error('Laravel Echo NO está disponible. La actualización en tiempo real no funcionará.');
     }
 
     async function sendMessage() {
@@ -124,18 +164,30 @@ document.addEventListener('DOMContentLoaded', function () {
             if (response.ok) {
                 const data = await response.json();
                 console.log('Mensaje enviado:', data);
-                // Si el mensaje se envió con éxito, recargar la página para mostrar el nuevo mensaje
-                window.location.reload();
+                // AÑADIR EL MENSAJE AL CHATBOX INMEDIATAMENTE PARA EL REMITENTE
+                // Usamos data.data porque el controlador devuelve el mensaje en 'data'
+                addMessageToChatBox(data.data, 'Tú', true); // 'Tú' porque es el mensaje del usuario actual
+                messageInput.value = ''; // Limpiar el input
+
+                // NO recargar la página: window.location.reload(); // <-- ESTA LÍNEA SE ELIMINA
             } else {
                 const errorData = await response.json();
                 console.error('Error al enviar mensaje:', errorData);
-                alert('Error al enviar mensaje: ' + (errorData.message || 'Error desconocido'));
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire('Error', 'Error al enviar mensaje: ' + (errorData.message || 'Error desconocido'), 'error');
+                } else {
+                    alert('Error al enviar mensaje: ' + (errorData.message || 'Error desconocido'));
+                }
             }
         } catch (error) {
             console.error('Error de red al enviar mensaje:', error);
-            alert('Error de conexión. Intenta de nuevo.');
+            if (typeof Swal !== 'undefined') {
+                Swal.fire('Error', 'Error de conexión. Intenta de nuevo.', 'error');
+            } else {
+                alert('Error de conexión. Intenta de nuevo.');
+            }
         } finally {
-            // Re-habilitar los campos y restaurar el botón en caso de error
+            // Re-habilitar los campos y restaurar el botón
             messageInput.disabled = false;
             sendMessageBtn.disabled = false;
             sendMessageBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar';
